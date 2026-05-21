@@ -23,6 +23,10 @@ backend/
   FlexGCCLLC.WorkRequestTracker.Tests/
   FlexGCCLLC.WorkRequestTracker.slnx
 
+Database/
+  Objects/
+  Scripts/
+
 frontend/
   src/
     components/work-requests/
@@ -112,6 +116,16 @@ npm run build
 ```
 
 ## SQL Schema
+
+Manual SQL Server scripts are available under:
+
+```text
+Database/Scripts/001_CreateWorkRequestTracker.sql
+Database/Scripts/002_SeedDemoData.sql
+Database/Scripts/999_DropWorkRequestTracker.sql
+```
+
+Object-level table and index definitions are under `Database/Objects/`.
 
 ```sql
 CREATE TABLE WorkRequests (
