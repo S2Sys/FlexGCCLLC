@@ -3,6 +3,8 @@ using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IWorkRequestRepository>(services =>
 {
     var configuration = services.GetRequiredService<IConfiguration>();
@@ -22,6 +24,12 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Work Request Tracker API v1");
+});
 
 app.UseHttpsRedirection();
 

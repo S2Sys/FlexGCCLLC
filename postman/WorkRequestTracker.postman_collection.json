@@ -1,0 +1,238 @@
+{
+  "info": {
+    "_postman_id": "6f8c97fb-0c3a-4e19-9b6a-ecfd986c4f21",
+    "name": "Work Request Tracker API",
+    "description": "Postman collection for the FlexGCCLLC Work Request Tracker assessment API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7000"
+    },
+    {
+      "key": "workRequestId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Work Requests",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests?page=1&pageSize=20",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "20"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Filter Work Requests By Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests?status=InProgress&search=report&page=1&pageSize=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "InProgress"
+            },
+            {
+              "key": "search",
+              "value": "report"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Work Request By Id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests",
+            "{{workRequestId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Work Request",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200 || pm.response.code === 201) {",
+              "  const json = pm.response.json();",
+              "  if (json.id) pm.collectionVariables.set('workRequestId', json.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman created request\",\n  \"clientName\": \"FlexGCCLLC\",\n  \"description\": \"Created from Postman collection.\",\n  \"priority\": \"Medium\",\n  \"status\": \"New\",\n  \"dueDate\": \"2026-05-30T00:00:00Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Work Request Status",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"InProgress\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests",
+            "{{workRequestId}}",
+            "status"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Work Request Note",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"noteText\": \"Postman note added for API smoke testing.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}/notes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests",
+            "{{workRequestId}}",
+            "notes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create Work Request - Validation Error",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"\",\n  \"clientName\": \"\",\n  \"description\": \"Missing required fields.\",\n  \"priority\": \"High\",\n  \"status\": \"New\",\n  \"dueDate\": \"2026-05-30T00:00:00Z\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests"
+          ]
+        }
+      }
+    }
+  ]
+}

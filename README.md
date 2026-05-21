@@ -92,6 +92,7 @@ Then check:
 
 ```text
 https://localhost:7000/health
+https://localhost:7000/swagger
 ```
 
 The exact port may differ; use the port printed by `dotnet run`.
@@ -124,6 +125,22 @@ From `frontend/`:
 ```powershell
 npm run build
 ```
+
+## API Testing
+
+Swagger UI is enabled at:
+
+```text
+https://localhost:7000/swagger
+```
+
+Import this Postman collection to test the API:
+
+```text
+postman/WorkRequestTracker.postman_collection.json
+```
+
+Set the collection `baseUrl` variable to the HTTPS or HTTP URL printed by `dotnet run`.
 
 ## SQL Schema
 
