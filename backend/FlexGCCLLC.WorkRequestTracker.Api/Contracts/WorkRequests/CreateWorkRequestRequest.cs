@@ -1,6 +1,4 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
-
-namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Dtos;
+namespace FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
 
 public sealed record CreateWorkRequestRequest(
     string Title,

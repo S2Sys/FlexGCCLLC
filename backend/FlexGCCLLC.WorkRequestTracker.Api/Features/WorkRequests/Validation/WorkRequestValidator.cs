@@ -1,5 +1,4 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Dtos;
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
+using FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
 
 namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Validation;
 

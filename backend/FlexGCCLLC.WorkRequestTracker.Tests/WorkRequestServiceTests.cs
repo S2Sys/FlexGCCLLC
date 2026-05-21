@@ -1,6 +1,8 @@
+using FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
 using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Dtos;
 using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
+using ContractPriority = FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests.WorkRequestPriority;
+using ContractStatus = FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests.WorkRequestStatus;
 
 namespace FlexGCCLLC.WorkRequestTracker.Tests;
 
@@ -15,8 +17,8 @@ public class WorkRequestServiceTests
             "",
             "Acme",
             "Need a tracker",
-            WorkRequestPriority.High,
-            WorkRequestStatus.New,
+            ContractPriority.High,
+            ContractStatus.New,
             DateTime.UtcNow.AddDays(1)));
 
         Assert.False(result.IsSuccess);
@@ -31,15 +33,26 @@ public class WorkRequestServiceTests
             "Build tracker",
             "Acme",
             "Need a tracker",
-            WorkRequestPriority.Medium,
-            WorkRequestStatus.New,
+            ContractPriority.Medium,
+            ContractStatus.New,
             DateTime.UtcNow.AddDays(1))).Value!;
 
-        var result = service.UpdateStatus(created.Id, new UpdateWorkRequestStatusRequest(WorkRequestStatus.InProgress));
+        var result = service.UpdateStatus(created.Id, new UpdateWorkRequestStatusRequest(ContractStatus.InProgress));
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(WorkRequestStatus.InProgress, result.Value!.Status);
+        Assert.Equal(ContractStatus.InProgress, result.Value!.Status);
         Assert.True(result.Value.UpdatedDate >= created.UpdatedDate);
+    }
+
+    [Fact]
+    public void List_rejects_invalid_status_filter()
+    {
+        var service = new WorkRequestService(new InMemoryWorkRequestRepository());
+
+        var result = service.List((ContractStatus)999, null, 1, 20);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal("InvalidStatus", result.Error?.Code);
     }
 
     [Fact]
@@ -135,8 +148,8 @@ public class WorkRequestServiceTests
             "Build tracker",
             "Acme",
             "Need a tracker",
-            WorkRequestPriority.Medium,
-            WorkRequestStatus.New,
+            ContractPriority.Medium,
+            ContractStatus.New,
             DateTime.UtcNow.AddDays(1))).Value!;
 
     private sealed class RecordingWorkRequestRepository : IWorkRequestRepository

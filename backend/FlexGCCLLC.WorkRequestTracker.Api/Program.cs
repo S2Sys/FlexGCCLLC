@@ -1,4 +1,5 @@
 using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
+using FlexGCCLLC.WorkRequestTracker.Api.Middleware;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,9 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<RequestTracingMiddleware>();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI(options =>
