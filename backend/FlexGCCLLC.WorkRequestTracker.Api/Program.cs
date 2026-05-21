@@ -1,3 +1,4 @@
+using FlexGCCLLC.WorkRequestTracker.Api.Endpoints;
 using FlexGCCLLC.WorkRequestTracker.Api.Middleware;
 using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 using FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
@@ -7,11 +8,10 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<Func<IDbConnection>>(services =>
@@ -48,7 +48,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("LocalFrontend");
 
-app.MapControllers();
+app.MapWorkRequestEndpoints();
 app.MapHealthChecks("/health");
 
 app.Run();

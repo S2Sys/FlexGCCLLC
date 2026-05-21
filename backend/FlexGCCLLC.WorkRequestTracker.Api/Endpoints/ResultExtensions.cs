@@ -1,15 +1,14 @@
 using FlexGCCLLC.WorkRequestTracker.Application.Common;
-using Microsoft.AspNetCore.Mvc;
 
-namespace FlexGCCLLC.WorkRequestTracker.Api.Controllers;
+namespace FlexGCCLLC.WorkRequestTracker.Api.Endpoints;
 
-public static class ControllerResultExtensions
+public static class ResultExtensions
 {
-    public static ActionResult<T> ToActionResult<T>(this Result<T> result)
+    public static IResult ToEndpointResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
         {
-            return new OkObjectResult(result.Value);
+            return Results.Ok(result.Value);
         }
 
         var statusCode = result.Error!.Code switch
@@ -21,9 +20,6 @@ public static class ControllerResultExtensions
             _ => StatusCodes.Status500InternalServerError
         };
 
-        return new ObjectResult(result.Error)
-        {
-            StatusCode = statusCode
-        };
+        return Results.Json(result.Error, statusCode: statusCode);
     }
 }

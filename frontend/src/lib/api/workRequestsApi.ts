@@ -38,12 +38,12 @@ export async function listWorkRequests(status: string, search: string) {
     query.set('search', normalizedSearch)
   }
 
-  const result = await request<PagedResult<WorkRequest>>(`/api/work-requests?${query}`)
+  const result = await request<PagedResult<WorkRequest>>(`/api/v1/work-requests?${query}`)
   return result.items
 }
 
 export function createWorkRequest(input: CreateWorkRequestInput) {
-  return request<WorkRequest>('/api/work-requests', {
+  return request<WorkRequest>('/api/v1/work-requests', {
     method: 'POST',
     body: JSON.stringify({
       ...input,
@@ -53,14 +53,14 @@ export function createWorkRequest(input: CreateWorkRequestInput) {
 }
 
 export function updateWorkRequestStatus(id: number, status: WorkRequestStatus) {
-  return request<WorkRequest>(`/api/work-requests/${id}/status`, {
+  return request<WorkRequest>(`/api/v1/work-requests/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ status }),
   })
 }
 
 export function addWorkRequestNote(id: number, noteText: string) {
-  return request<WorkRequestNote>(`/api/work-requests/${id}/notes`, {
+  return request<WorkRequestNote>(`/api/v1/work-requests/${id}/notes`, {
     method: 'POST',
     body: JSON.stringify({ noteText: noteText.trim() }),
   })

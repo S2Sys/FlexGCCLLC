@@ -38,7 +38,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests?page=1&pageSize=20",
+          "raw": "{{baseUrl}}/api/v1/work-requests?page=1&pageSize=20",
           "host": [
             "{{baseUrl}}"
           ],
@@ -65,7 +65,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests?status=InProgress&search=report&page=1&pageSize=10",
+          "raw": "{{baseUrl}}/api/v1/work-requests?status=InProgress&search=report&page=1&pageSize=10",
           "host": [
             "{{baseUrl}}"
           ],
@@ -117,7 +117,7 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}",
+          "raw": "{{baseUrl}}/api/v1/work-requests/{{workRequestId}}",
           "host": [
             "{{baseUrl}}"
           ],
@@ -158,7 +158,7 @@
           "raw": "{\n  \"title\": \"Postman created request\",\n  \"clientName\": \"FlexGCCLLC\",\n  \"description\": \"Created from Postman collection.\",\n  \"priority\": \"Medium\",\n  \"status\": \"New\",\n  \"dueDate\": \"2026-05-30T00:00:00Z\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests",
+          "raw": "{{baseUrl}}/api/v1/work-requests",
           "host": [
             "{{baseUrl}}"
           ],
@@ -184,7 +184,7 @@
           "raw": "{\n  \"status\": \"InProgress\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}/status",
+          "raw": "{{baseUrl}}/api/v1/work-requests/{{workRequestId}}/status",
           "host": [
             "{{baseUrl}}"
           ],
@@ -231,7 +231,7 @@
           "raw": "{\n  \"noteText\": \"Postman note added for API smoke testing.\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}/notes",
+          "raw": "{{baseUrl}}/api/v1/work-requests/{{workRequestId}}/notes",
           "host": [
             "{{baseUrl}}"
           ],
@@ -277,7 +277,7 @@
           "raw": "{\n  \"noteText\": \"\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}/notes",
+          "raw": "{{baseUrl}}/api/v1/work-requests/{{workRequestId}}/notes",
           "host": [
             "{{baseUrl}}"
           ],
@@ -322,7 +322,7 @@
           "raw": "{\n  \"noteText\": \"This request id should not exist.\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests/999999/notes",
+          "raw": "{{baseUrl}}/api/v1/work-requests/999999/notes",
           "host": [
             "{{baseUrl}}"
           ],
@@ -350,7 +350,7 @@
           "raw": "{\n  \"title\": \"\",\n  \"clientName\": \"\",\n  \"description\": \"Missing required fields.\",\n  \"priority\": \"High\",\n  \"status\": \"New\",\n  \"dueDate\": \"2026-05-30T00:00:00Z\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/api/work-requests",
+          "raw": "{{baseUrl}}/api/v1/work-requests",
           "host": [
             "{{baseUrl}}"
           ],

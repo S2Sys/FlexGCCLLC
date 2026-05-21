@@ -56,6 +56,21 @@ public class ArchitectureTests
         Assert.Contains("IDbConnection", programSource);
     }
 
+    [Fact]
+    public void Api_uses_minimal_api_routes_with_versioned_v1_prefix()
+    {
+        var backendRoot = FindBackendRoot();
+        var apiRoot = Path.Combine(backendRoot, "FlexGCCLLC.WorkRequestTracker.Api");
+        var programSource = File.ReadAllText(Path.Combine(apiRoot, "Program.cs"));
+        var controllerPath = Path.Combine(apiRoot, "Controllers", "WorkRequestsController.cs");
+
+        Assert.False(File.Exists(controllerPath));
+        Assert.DoesNotContain("AddControllers", programSource);
+        Assert.DoesNotContain("MapControllers", programSource);
+        Assert.Contains("MapWorkRequestEndpoints", programSource);
+        Assert.Contains("/api/v1/work-requests", File.ReadAllText(Path.Combine(apiRoot, "Endpoints", "WorkRequestEndpoints.cs")));
+    }
+
     private static string FindBackendRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

@@ -14,7 +14,7 @@ public class ApiMiddlewareTests
     {
         var context = new DefaultHttpContext();
         context.Request.Method = HttpMethods.Get;
-        context.Request.Path = "/api/work-requests";
+        context.Request.Path = "/api/v1/work-requests";
 
         var middleware = new RequestTracingMiddleware(
             next: httpContext =>
@@ -79,7 +79,7 @@ public class ApiMiddlewareTests
     {
         var context = new DefaultHttpContext();
         context.Request.Method = HttpMethods.Get;
-        context.Request.Path = "/api/work-requests";
+        context.Request.Path = "/api/v1/work-requests";
         context.Request.Headers[RequestTracingMiddleware.CorrelationIdHeaderName] = "trace-456";
         context.Response.Body = new MemoryStream();
 

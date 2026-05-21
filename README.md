@@ -43,11 +43,11 @@ frontend/
 The API exposes:
 
 ```text
-GET    /api/work-requests?status=&search=&page=&pageSize=
-GET    /api/work-requests/{id}
-POST   /api/work-requests
-PATCH  /api/work-requests/{id}/status
-POST   /api/work-requests/{id}/notes
+GET    /api/v1/work-requests?status=&search=&page=&pageSize=
+GET    /api/v1/work-requests/{id}
+POST   /api/v1/work-requests
+PATCH  /api/v1/work-requests/{id}/status
+POST   /api/v1/work-requests/{id}/notes
 GET    /health
 ```
 
