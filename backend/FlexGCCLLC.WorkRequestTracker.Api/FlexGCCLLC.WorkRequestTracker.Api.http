@@ -1,0 +1,6 @@
+@FlexGCCLLC.WorkRequestTracker.Api_HostAddress = http://localhost:5063
+
+GET {{FlexGCCLLC.WorkRequestTracker.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

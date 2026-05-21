@@ -1,0 +1,17 @@
+# .NET
+bin/
+obj/
+
+# Node / React
+node_modules/
+dist/
+
+# Local environment
+.env
+.env.*
+*.user
+*.suo
+
+# Logs
+*.log
+npm-debug.log*

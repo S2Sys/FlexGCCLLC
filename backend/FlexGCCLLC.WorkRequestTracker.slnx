@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FlexGCCLLC.WorkRequestTracker.Api/FlexGCCLLC.WorkRequestTracker.Api.csproj" />
+  <Project Path="FlexGCCLLC.WorkRequestTracker.Tests/FlexGCCLLC.WorkRequestTracker.Tests.csproj" />
+</Solution>
