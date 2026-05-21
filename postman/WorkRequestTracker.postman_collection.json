@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://localhost:7000"
+      "value": "https://localhost:7080"
     },
     {
       "key": "workRequestId",
@@ -96,6 +96,23 @@
     },
     {
       "name": "Get Work Request By Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('request loads successfully', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('notes array is present', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.notes).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "GET",
         "header": [],
@@ -182,6 +199,25 @@
     },
     {
       "name": "Add Work Request Note",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('note is created', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('note response has expected fields', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.workRequestId).to.eql(Number(pm.collectionVariables.get('workRequestId')));",
+              "  pm.expect(json.noteText).to.eql('Postman note added for API smoke testing.');",
+              "  pm.expect(json.createdDate).to.be.a('string').and.not.empty;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -203,6 +239,97 @@
             "api",
             "work-requests",
             "{{workRequestId}}",
+            "notes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Work Request Note - Validation Error",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('empty note is rejected', function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "pm.test('validation error response is clear', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.code).to.eql('ValidationError');",
+              "  pm.expect(json.details).to.include('Note text is required.');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"noteText\": \"\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests/{{workRequestId}}/notes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests",
+            "{{workRequestId}}",
+            "notes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add Work Request Note - Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('missing request returns not found', function () {",
+              "  pm.response.to.have.status(404);",
+              "});",
+              "pm.test('not found error response is clear', function () {",
+              "  const json = pm.response.json();",
+              "  pm.expect(json.code).to.eql('NotFound');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"noteText\": \"This request id should not exist.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/work-requests/999999/notes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "work-requests",
+            "999999",
             "notes"
           ]
         }

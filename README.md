@@ -143,6 +143,19 @@ postman/WorkRequestTracker.postman_collection.json
 
 Set the collection `baseUrl` variable to the HTTPS or HTTP URL printed by `dotnet run`.
 
+### Story 1.4 Notes Smoke Test
+
+Use these checks for the notes workflow:
+
+1. Run the SQL create and seed scripts, then start the backend.
+2. Start the frontend with `VITE_API_BASE_URL` set to the backend URL.
+3. In Postman, run `Create Work Request` and confirm `workRequestId` is captured.
+4. Run `Add Work Request Note` and expect `200 OK` with `workRequestId`, `noteText`, and `createdDate`.
+5. Run `Get Work Request By Id` and confirm the new note appears in `notes`.
+6. Run `Add Work Request Note - Validation Error` and expect `400 ValidationError`.
+7. Run `Add Work Request Note - Not Found` and expect `404 NotFound`.
+8. In the React admin panel, add a note from a request row, refresh the browser, and confirm the note still displays from the SQL-backed API.
+
 ## SQL Schema
 
 Manual SQL Server scripts are available under:
