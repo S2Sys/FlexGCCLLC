@@ -1,0 +1,94 @@
+name: CI/CD Pipeline — Advanced
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-test-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with Maven
+        run: mvn clean install
+      - name: Run unit tests
+        run: mvn test
+      - name: Run integration tests
+        run: mvn verify -Pintegration-tests
+      - name: Generate Jacoco coverage report
+        run: mvn jacoco:report
+      - name: Dependency check (OWASP)
+        run: mvn org.owasp:dependency-check-maven:check
+        continue-on-error: true
+      - name: Build Release Package
+        run: mvn clean package -DskipTests -Pproduction
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./target/site/jacoco/jacoco.xml
+
+  performance-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Run performance tests
+        run: mvn test -Pperformance-tests
+      - name: Archive performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: ./target/performance-report.json
+
+  deploy-develop:
+    needs: [lint-test-security, performance-test]
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: develop
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Develop
+        run: echo "Deploying to develop"
+      - name: Send Slack Notification
+        run: echo "Deployment to develop complete"
+
+  deploy-staging:
+    needs: [lint-test-security, performance-test]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Staging
+        run: echo "Deploying to staging"
+      - name: Health Check
+        run: echo "Checking staging health"
+      - name: Send Slack Notification
+        run: echo "Deployment to staging complete"
+
+  deploy-production:
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create Git tag
+        run: git tag -a "release-$(date +%Y%m%d-%H%M%S)" -m "Production release"
+      - name: Deploy to Production
+        run: echo "Deploying to production"
+      - name: Health Check
+        run: echo "Checking production health"
+      - name: Send Slack Notification
+        run: echo "Deployment to production complete — {{APP_NAME}}"

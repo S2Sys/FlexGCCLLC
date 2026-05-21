@@ -1,0 +1,53 @@
+stages:
+  - build
+  - test
+  - deploy
+
+image: node:18
+
+before_script:
+  - npm install
+
+build:
+  stage: build
+  script:
+    - npm run lint
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  only:
+    - develop
+    - main
+
+test:
+  stage: test
+  script:
+    - npm run test
+  coverage: '/Lines\s*:\s*(\d+.\d+)%/'
+  only:
+    - develop
+    - main
+
+deploy_develop:
+  stage: deploy
+  environment:
+    name: development
+    url: https://dev.example.com
+  script:
+    - echo "Deploying to development environment"
+  only:
+    - develop
+  when: on_success
+
+deploy_staging:
+  stage: deploy
+  environment:
+    name: staging
+    url: https://staging.example.com
+  script:
+    - echo "Deploying to staging environment"
+  only:
+    - main
+  when: on_success

@@ -1,0 +1,63 @@
+﻿stages:
+  - build
+  - test
+  - deploy
+
+image: mcr.microsoft.com/dotnet/sdk:7.0
+
+cache:
+  paths:
+    - .nuget/
+
+before_script:
+  - dotnet restore
+
+build:
+  stage: build
+  script:
+    - dotnet build --no-restore --configuration Release
+    - dotnet publish -c Release -o publish
+  artifacts:
+    paths:
+      - publish/
+    expire_in: 1 week
+  only:
+    - develop
+    - main
+
+test:
+  stage: test
+  script:
+    - dotnet test --no-build --verbosity minimal --logger "trx;LogFileName=test-results.trx"
+  artifacts:
+    reports:
+      junit:
+        - "**/test-results.trx"
+    paths:
+      - "**/test-results.trx"
+    expire_in: 1 week
+  only:
+    - develop
+    - main
+
+deploy_develop:
+  stage: deploy
+  environment:
+    name: development
+    url: https://dev.example.com
+  script:
+    - echo "Deploying to development environment"
+  only:
+    - develop
+  when: on_success
+
+deploy_staging:
+  stage: deploy
+  environment:
+    name: staging
+    url: https://staging.example.com
+  script:
+    - echo "Deploying to staging environment"
+  only:
+    - main
+  when: on_success

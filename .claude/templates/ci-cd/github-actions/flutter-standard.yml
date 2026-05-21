@@ -1,0 +1,68 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0'
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Analyze code
+        run: flutter analyze
+      - name: Run unit tests
+        run: flutter test
+      - name: Run integration tests
+        run: flutter test integration_test/
+      - name: Build APK
+        run: flutter build apk --release
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
+
+  deploy-develop:
+    needs: lint-and-test
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: develop
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Develop
+        run: echo "Deploying to develop environment"
+        env:
+          DEPLOYMENT_ENV: develop
+          APP_NAME: {{APP_NAME}}
+
+  deploy-staging:
+    needs: lint-and-test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Staging
+        run: echo "Deploying to staging environment"
+        env:
+          DEPLOYMENT_ENV: staging
+          APP_NAME: {{APP_NAME}}
+
+  deploy-production:
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Production
+        run: echo "Deploying to production environment"
+        env:
+          DEPLOYMENT_ENV: production
+          APP_NAME: {{APP_NAME}}
