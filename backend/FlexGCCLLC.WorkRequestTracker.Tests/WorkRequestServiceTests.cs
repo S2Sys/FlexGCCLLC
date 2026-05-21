@@ -41,4 +41,13 @@ public class WorkRequestServiceTests
         Assert.Equal(WorkRequestStatus.InProgress, result.Value!.Status);
         Assert.True(result.Value.UpdatedDate >= created.UpdatedDate);
     }
+
+    [Fact]
+    public void Dapper_repository_implements_work_request_repository_contract()
+    {
+        IWorkRequestRepository repository = new DapperWorkRequestRepository(
+            "Server=(localdb)\\MSSQLLocalDB;Database=FlexGCCLLC_WorkRequestTracker;Trusted_Connection=True;TrustServerCertificate=True");
+
+        Assert.IsType<DapperWorkRequestRepository>(repository);
+    }
 }

@@ -8,7 +8,7 @@ This repository contains a practical two-hour style assessment implementation:
 
 - ASP.NET Core Web API backend
 - React + TypeScript + Vite frontend
-- In-memory persistence for quick review
+- Dapper + SQL Server persistence
 - SQL schema included below for database fundamentals
 - Validation and consistent API error responses
 - Minimal tests for core backend behavior
@@ -70,9 +70,19 @@ The React app includes:
 - Add note action
 - Loading and error states
 
-The frontend uses mock/in-memory data in `frontend/src/lib/api/workRequestsApi.ts` so it can be reviewed quickly without requiring the API to run.
+The frontend uses mock data in `frontend/src/lib/api/workRequestsApi.ts` so it can be reviewed quickly without requiring the API to run.
 
 ## Run Backend
+
+Create the SQL Server schema first if the database does not exist:
+
+```powershell
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d master -Q "IF DB_ID(N'FlexGCCLLC_WorkRequestTracker') IS NULL CREATE DATABASE FlexGCCLLC_WorkRequestTracker"
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d FlexGCCLLC_WorkRequestTracker -i Database/Scripts/001_CreateWorkRequestTracker.sql
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d FlexGCCLLC_WorkRequestTracker -i Database/Scripts/002_SeedDemoData.sql
+```
+
+The default connection string is in `backend/FlexGCCLLC.WorkRequestTracker.Api/appsettings.json` under `ConnectionStrings:WorkRequestTracker`.
 
 ```powershell
 dotnet run --project backend/FlexGCCLLC.WorkRequestTracker.Api
@@ -161,7 +171,7 @@ ON WorkRequests (ClientName, Title);
 ## Known Issues / Not Done
 
 - Authentication and authorization are not implemented.
-- Persistence is in-memory for the backend scaffold.
+- SQL Server must be created manually with the scripts under `Database/Scripts`.
 - Frontend currently uses mock data for quick standalone review.
 - Status transition rules are not enforced beyond enum validation.
 - Styling is intentionally minimal and assessment-focused.

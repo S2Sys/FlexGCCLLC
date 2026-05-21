@@ -3,7 +3,14 @@ using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddSingleton<IWorkRequestRepository, InMemoryWorkRequestRepository>();
+builder.Services.AddScoped<IWorkRequestRepository>(services =>
+{
+    var configuration = services.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("WorkRequestTracker")
+        ?? throw new InvalidOperationException("Connection string 'WorkRequestTracker' is required.");
+
+    return new DapperWorkRequestRepository(connectionString);
+});
 builder.Services.AddScoped<WorkRequestService>();
 builder.Services.AddHealthChecks();
 builder.Services.AddCors(options =>
