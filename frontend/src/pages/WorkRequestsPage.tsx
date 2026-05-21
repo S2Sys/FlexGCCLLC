@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { AdminShell } from '../components/admin/AdminShell'
 import { CreateWorkRequestForm } from '../components/work-requests/CreateWorkRequestForm'
 import { WorkRequestFilters } from '../components/work-requests/WorkRequestFilters'
 import { WorkRequestList } from '../components/work-requests/WorkRequestList'
@@ -21,7 +22,7 @@ export function WorkRequestsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  async function load() {
+  const load = useCallback(async () => {
     setIsLoading(true)
     setError(null)
     try {
@@ -31,11 +32,13 @@ export function WorkRequestsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [search, status])
 
   useEffect(() => {
+    // The assessment uses a local async adapter, so the page loads data after mount/filter changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
-  }, [status, search])
+  }, [load])
 
   async function handleCreate(input: CreateWorkRequestInput) {
     setError(null)
@@ -63,13 +66,13 @@ export function WorkRequestsPage() {
   }
 
   return (
-    <main className="page-shell">
+    <AdminShell visibleCount={requests.length}>
       <section className="page-header">
         <div>
           <p className="eyebrow">Code assessment module</p>
           <h1>Work Request Tracker</h1>
         </div>
-        <div className="summary">
+        <div className="summary" aria-label="Visible request count">
           <strong>{requests.length}</strong>
           <span>visible requests</span>
         </div>
@@ -100,6 +103,6 @@ export function WorkRequestsPage() {
           )}
         </div>
       </section>
-    </main>
+    </AdminShell>
   )
 }

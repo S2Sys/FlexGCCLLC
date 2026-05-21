@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import type { WorkRequest, WorkRequestStatus } from '../../types/workRequest'
 import { StatusUpdateButton } from './StatusUpdateButton'
 
@@ -36,7 +36,7 @@ interface WorkRequestRowProps {
 function WorkRequestRow({ request, onStatusChange, onAddNote }: WorkRequestRowProps) {
   const [note, setNote] = useState('')
 
-  async function submitNote(event: React.FormEvent<HTMLFormElement>) {
+  async function submitNote(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     await onAddNote(request.id, note)
     setNote('')

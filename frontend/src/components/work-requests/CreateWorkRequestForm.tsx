@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import type {
   CreateWorkRequestInput,
   WorkRequestPriority,
@@ -23,7 +23,7 @@ export function CreateWorkRequestForm({ onCreate }: CreateWorkRequestFormProps) 
   })
   const [isSaving, setIsSaving] = useState(false)
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSaving(true)
     try {
