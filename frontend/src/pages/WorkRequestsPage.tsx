@@ -35,7 +35,7 @@ export function WorkRequestsPage() {
   }, [search, status])
 
   useEffect(() => {
-    // The assessment uses a local async adapter, so the page loads data after mount/filter changes.
+    // Keep the request list synced with the current server-side filters.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load()
   }, [load])
@@ -51,8 +51,13 @@ export function WorkRequestsPage() {
   }
 
   async function handleStatusChange(id: number, nextStatus: WorkRequestStatus) {
-    await updateWorkRequestStatus(id, nextStatus)
-    await load()
+    setError(null)
+    try {
+      await updateWorkRequestStatus(id, nextStatus)
+      await load()
+    } catch (statusError) {
+      setError(statusError instanceof Error ? statusError.message : 'Unable to update status.')
+    }
   }
 
   async function handleAddNote(id: number, noteText: string) {

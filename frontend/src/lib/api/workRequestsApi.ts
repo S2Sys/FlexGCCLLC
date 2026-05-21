@@ -1,126 +1,93 @@
 import type {
   CreateWorkRequestInput,
   WorkRequest,
+  WorkRequestNote,
   WorkRequestStatus,
 } from '../../types/workRequest'
 
-const initialRequests: WorkRequest[] = [
-  {
-    id: 1,
-    title: 'Prepare client onboarding checklist',
-    clientName: 'Northwind Advisory',
-    description: 'Create a short checklist for the new operations handoff.',
-    priority: 'High',
-    status: 'New',
-    dueDate: new Date(Date.now() + 86400000).toISOString(),
-    createdDate: new Date().toISOString(),
-    updatedDate: new Date().toISOString(),
-    notes: [],
-  },
-  {
-    id: 2,
-    title: 'Fix monthly report export',
-    clientName: 'BluePeak Finance',
-    description: 'Investigate missing totals in the CSV export.',
-    priority: 'Medium',
-    status: 'InProgress',
-    dueDate: new Date(Date.now() + 172800000).toISOString(),
-    createdDate: new Date().toISOString(),
-    updatedDate: new Date().toISOString(),
-    notes: [
-      {
-        id: 1,
-        workRequestId: 2,
-        noteText: 'Issue reproduced with March sample data.',
-        createdDate: new Date().toISOString(),
-      },
-    ],
-  },
-]
+interface PagedResult<T> {
+  items: T[]
+  page: number
+  pageSize: number
+  total: number
+}
 
-let requests = [...initialRequests]
-let nextId = 3
-let nextNoteId = 2
+interface ApiErrorResponse {
+  code?: string
+  message?: string
+  details?: string[]
+}
+
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7080').replace(
+  /\/$/,
+  '',
+)
 
 export async function listWorkRequests(status: string, search: string) {
-  await delay()
+  const query = new URLSearchParams({
+    page: '1',
+    pageSize: '20',
+  })
 
-  const normalizedSearch = search.trim().toLowerCase()
-  return requests.filter((request) => {
-    const matchesStatus = status === 'All' || request.status === status
-    const matchesSearch =
-      normalizedSearch.length === 0 ||
-      request.title.toLowerCase().includes(normalizedSearch) ||
-      request.clientName.toLowerCase().includes(normalizedSearch)
+  if (status !== 'All') {
+    query.set('status', status)
+  }
 
-    return matchesStatus && matchesSearch
+  const normalizedSearch = search.trim()
+  if (normalizedSearch.length > 0) {
+    query.set('search', normalizedSearch)
+  }
+
+  const result = await request<PagedResult<WorkRequest>>(`/api/work-requests?${query}`)
+  return result.items
+}
+
+export function createWorkRequest(input: CreateWorkRequestInput) {
+  return request<WorkRequest>('/api/work-requests', {
+    method: 'POST',
+    body: JSON.stringify({
+      ...input,
+      dueDate: new Date(input.dueDate).toISOString(),
+    }),
   })
 }
 
-export async function createWorkRequest(input: CreateWorkRequestInput) {
-  await delay()
-
-  const missing = [
-    ['Title', input.title],
-    ['Client name', input.clientName],
-    ['Description', input.description],
-    ['Due date', input.dueDate],
-  ].filter(([, value]) => !String(value).trim())
-
-  if (missing.length > 0) {
-    throw new Error(`${missing[0][0]} is required.`)
-  }
-
-  const now = new Date().toISOString()
-  const request: WorkRequest = {
-    id: nextId++,
-    ...input,
-    dueDate: new Date(input.dueDate).toISOString(),
-    createdDate: now,
-    updatedDate: now,
-    notes: [],
-  }
-
-  requests = [request, ...requests]
-  return request
+export function updateWorkRequestStatus(id: number, status: WorkRequestStatus) {
+  return request<WorkRequest>(`/api/work-requests/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  })
 }
 
-export async function updateWorkRequestStatus(id: number, status: WorkRequestStatus) {
-  await delay()
-
-  requests = requests.map((request) =>
-    request.id === id
-      ? { ...request, status, updatedDate: new Date().toISOString() }
-      : request,
-  )
+export function addWorkRequestNote(id: number, noteText: string) {
+  return request<WorkRequestNote>(`/api/work-requests/${id}/notes`, {
+    method: 'POST',
+    body: JSON.stringify({ noteText: noteText.trim() }),
+  })
 }
 
-export async function addWorkRequestNote(id: number, noteText: string) {
-  await delay()
+async function request<T>(path: string, init?: RequestInit) {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...init?.headers,
+    },
+  })
 
-  if (!noteText.trim()) {
-    throw new Error('Note text is required.')
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response))
   }
 
-  requests = requests.map((request) =>
-    request.id === id
-      ? {
-          ...request,
-          updatedDate: new Date().toISOString(),
-          notes: [
-            ...request.notes,
-            {
-              id: nextNoteId++,
-              workRequestId: id,
-              noteText: noteText.trim(),
-              createdDate: new Date().toISOString(),
-            },
-          ],
-        }
-      : request,
-  )
+  return (await response.json()) as T
 }
 
-function delay() {
-  return new Promise((resolve) => window.setTimeout(resolve, 180))
+async function readErrorMessage(response: Response) {
+  try {
+    const error = (await response.json()) as ApiErrorResponse
+    const details = error.details?.filter(Boolean).join(' ')
+    return details || error.message || `Request failed with ${response.status}.`
+  } catch {
+    return `Request failed with ${response.status}.`
+  }
 }

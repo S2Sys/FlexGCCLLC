@@ -70,7 +70,7 @@ The React app includes:
 - Add note action
 - Loading and error states
 
-The frontend uses mock data in `frontend/src/lib/api/workRequestsApi.ts` so it can be reviewed quickly without requiring the API to run.
+The frontend calls the ASP.NET Core API through `frontend/src/lib/api/workRequestsApi.ts`. Set `VITE_API_BASE_URL` if your backend runs on a different URL.
 
 ## Run Backend
 
@@ -91,8 +91,8 @@ dotnet run --project backend/FlexGCCLLC.WorkRequestTracker.Api
 Then check:
 
 ```text
-https://localhost:7000/health
-https://localhost:7000/swagger
+https://localhost:7080/health
+https://localhost:7080/swagger
 ```
 
 The exact port may differ; use the port printed by `dotnet run`.
@@ -102,6 +102,7 @@ The exact port may differ; use the port printed by `dotnet run`.
 ```powershell
 cd frontend
 npm install
+$env:VITE_API_BASE_URL="https://localhost:7080"
 npm run dev
 ```
 
@@ -131,7 +132,7 @@ npm run build
 Swagger UI is enabled at:
 
 ```text
-https://localhost:7000/swagger
+https://localhost:7080/swagger
 ```
 
 Import this Postman collection to test the API:
@@ -189,6 +190,5 @@ ON WorkRequests (ClientName, Title);
 
 - Authentication and authorization are not implemented.
 - SQL Server must be created manually with the scripts under `Database/Scripts`.
-- Frontend currently uses mock data for quick standalone review.
 - Status transition rules are not enforced beyond enum validation.
 - Styling is intentionally minimal and assessment-focused.
