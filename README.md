@@ -165,7 +165,3 @@ ON WorkRequests (ClientName, Title);
 - Frontend currently uses mock data for quick standalone review.
 - Status transition rules are not enforced beyond enum validation.
 - Styling is intentionally minimal and assessment-focused.
-
-## AI Assistance Disclosure
-
-AI assistance was used to scaffold and organize the assessment project, including backend structure, React component structure, validation flow, README text, and verification steps. The implementation was reviewed and verified with local build and test commands.
