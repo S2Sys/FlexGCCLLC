@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.Common;
+using FlexGCCLLC.WorkRequestTracker.Application.Common;
 
 namespace FlexGCCLLC.WorkRequestTracker.Api.Middleware;
 

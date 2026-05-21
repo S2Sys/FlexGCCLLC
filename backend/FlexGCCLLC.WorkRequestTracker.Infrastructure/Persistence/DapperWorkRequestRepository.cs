@@ -1,11 +1,19 @@
+using System.Data;
 using Dapper;
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
+using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 using Microsoft.Data.SqlClient;
 
-namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
+namespace FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
 
 public sealed class DapperWorkRequestRepository : IWorkRequestRepository
 {
+    private const string GetAllProcedure = "dbo.usp_WorkRequests_GetAll";
+    private const string GetByIdProcedure = "dbo.usp_WorkRequests_GetById";
+    private const string CreateProcedure = "dbo.usp_WorkRequests_Create";
+    private const string UpdateProcedure = "dbo.usp_WorkRequests_Update";
+    private const string AddNoteProcedure = "dbo.usp_WorkRequestNotes_Add";
+
     private readonly string _connectionString;
 
     public DapperWorkRequestRepository(string connectionString)
@@ -21,40 +29,33 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
     public IReadOnlyList<WorkRequest> GetAll()
     {
         using var connection = CreateConnection();
-        var rows = connection.Query<WorkRequestRow>(
-            """
-            SELECT Id, Title, ClientName, Description, Priority, Status, DueDate, CreatedDate, UpdatedDate
-            FROM dbo.WorkRequests;
-            """).ToArray();
+        using var grid = connection.QueryMultiple(
+            GetAllProcedure,
+            commandType: CommandType.StoredProcedure);
 
-        return HydrateNotes(connection, rows);
+        var rows = grid.Read<WorkRequestRow>().ToArray();
+        var notes = grid.Read<WorkRequestNote>().ToArray();
+        return HydrateNotes(rows, notes);
     }
 
     public WorkRequest? GetById(int id)
     {
         using var connection = CreateConnection();
-        var row = connection.QuerySingleOrDefault<WorkRequestRow>(
-            """
-            SELECT Id, Title, ClientName, Description, Priority, Status, DueDate, CreatedDate, UpdatedDate
-            FROM dbo.WorkRequests
-            WHERE Id = @Id;
-            """,
-            new { Id = id });
+        using var grid = connection.QueryMultiple(
+            GetByIdProcedure,
+            new { Id = id },
+            commandType: CommandType.StoredProcedure);
 
-        return row is null ? null : HydrateNotes(connection, [row]).Single();
+        var row = grid.Read<WorkRequestRow>().SingleOrDefault();
+        var notes = grid.Read<WorkRequestNote>().ToArray();
+        return row is null ? null : HydrateNotes([row], notes).Single();
     }
 
     public WorkRequest Add(WorkRequest request)
     {
         using var connection = CreateConnection();
         var id = connection.ExecuteScalar<int>(
-            """
-            INSERT INTO dbo.WorkRequests
-                (Title, ClientName, Description, Priority, Status, DueDate, CreatedDate, UpdatedDate)
-            OUTPUT INSERTED.Id
-            VALUES
-                (@Title, @ClientName, @Description, @Priority, @Status, @DueDate, @CreatedDate, @UpdatedDate);
-            """,
+            CreateProcedure,
             new
             {
                 request.Title,
@@ -65,7 +66,8 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
                 request.DueDate,
                 request.CreatedDate,
                 request.UpdatedDate
-            });
+            },
+            commandType: CommandType.StoredProcedure);
 
         return GetById(id) ?? throw new InvalidOperationException("Created work request could not be loaded.");
     }
@@ -74,17 +76,7 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
     {
         using var connection = CreateConnection();
         connection.Execute(
-            """
-            UPDATE dbo.WorkRequests
-            SET Title = @Title,
-                ClientName = @ClientName,
-                Description = @Description,
-                Priority = @Priority,
-                Status = @Status,
-                DueDate = @DueDate,
-                UpdatedDate = @UpdatedDate
-            WHERE Id = @Id;
-            """,
+            UpdateProcedure,
             new
             {
                 request.Id,
@@ -95,7 +87,8 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
                 Status = request.Status.ToString(),
                 request.DueDate,
                 request.UpdatedDate
-            });
+            },
+            commandType: CommandType.StoredProcedure);
 
         return GetById(request.Id) ?? throw new InvalidOperationException("Updated work request could not be loaded.");
     }
@@ -103,56 +96,20 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
     public WorkRequestNote AddNote(int workRequestId, string noteText, DateTime createdDate)
     {
         using var connection = CreateConnection();
-        connection.Open();
-        using var transaction = connection.BeginTransaction();
-
-        var noteId = connection.ExecuteScalar<int>(
-            """
-            INSERT INTO dbo.WorkRequestNotes (WorkRequestId, NoteText, CreatedDate)
-            OUTPUT INSERTED.Id
-            VALUES (@WorkRequestId, @NoteText, @CreatedDate);
-            """,
+        var note = connection.QuerySingle<WorkRequestNote>(
+            AddNoteProcedure,
             new { WorkRequestId = workRequestId, NoteText = noteText, CreatedDate = createdDate },
-            transaction);
+            commandType: CommandType.StoredProcedure);
 
-        connection.Execute(
-            """
-            UPDATE dbo.WorkRequests
-            SET UpdatedDate = @UpdatedDate
-            WHERE Id = @WorkRequestId;
-            """,
-            new { WorkRequestId = workRequestId, UpdatedDate = createdDate },
-            transaction);
-
-        transaction.Commit();
-
-        return new WorkRequestNote
-        {
-            Id = noteId,
-            WorkRequestId = workRequestId,
-            NoteText = noteText,
-            CreatedDate = createdDate
-        };
+        return note;
     }
 
     private SqlConnection CreateConnection() => new(_connectionString);
 
-    private static IReadOnlyList<WorkRequest> HydrateNotes(SqlConnection connection, IReadOnlyList<WorkRequestRow> rows)
+    private static IReadOnlyList<WorkRequest> HydrateNotes(
+        IReadOnlyList<WorkRequestRow> rows,
+        IReadOnlyList<WorkRequestNote> notes)
     {
-        if (rows.Count == 0)
-        {
-            return [];
-        }
-
-        var notes = connection.Query<WorkRequestNote>(
-            """
-            SELECT Id, WorkRequestId, NoteText, CreatedDate
-            FROM dbo.WorkRequestNotes
-            WHERE WorkRequestId IN @Ids
-            ORDER BY CreatedDate, Id;
-            """,
-            new { Ids = rows.Select(row => row.Id).ToArray() });
-
         var notesByRequestId = notes
             .GroupBy(note => note.WorkRequestId)
             .ToDictionary(group => group.Key, group => group.ToArray());

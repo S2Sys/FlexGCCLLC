@@ -1,13 +1,13 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.Common;
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Validation;
-using ContractPriority = FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests.WorkRequestPriority;
-using ContractStatus = FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests.WorkRequestStatus;
-using DomainPriority = FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models.WorkRequestPriority;
-using DomainStatus = FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models.WorkRequestStatus;
+using FlexGCCLLC.WorkRequestTracker.Application.Common;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Validation;
+using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
+using ContractPriority = FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts.WorkRequestPriority;
+using ContractStatus = FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts.WorkRequestStatus;
+using DomainPriority = FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests.WorkRequestPriority;
+using DomainStatus = FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests.WorkRequestStatus;
 
-namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
+namespace FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 
 public sealed class WorkRequestService
 {

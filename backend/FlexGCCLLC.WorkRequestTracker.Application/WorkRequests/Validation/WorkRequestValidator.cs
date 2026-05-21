@@ -1,6 +1,6 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts;
 
-namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Validation;
+namespace FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Validation;
 
 public static class WorkRequestValidator
 {

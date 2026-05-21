@@ -1,4 +1,4 @@
-namespace FlexGCCLLC.WorkRequestTracker.Api.Contracts.Common;
+namespace FlexGCCLLC.WorkRequestTracker.Application.Common;
 
 public sealed class Result<T>
 {

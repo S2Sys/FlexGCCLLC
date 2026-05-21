@@ -1,5 +1,6 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
 using FlexGCCLLC.WorkRequestTracker.Api.Middleware;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
+using FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);

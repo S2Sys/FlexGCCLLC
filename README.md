@@ -19,6 +19,9 @@ Authentication, deployment, notifications, background jobs, and production infra
 
 ```text
 backend/
+  FlexGCCLLC.WorkRequestTracker.Domain/
+  FlexGCCLLC.WorkRequestTracker.Application/
+  FlexGCCLLC.WorkRequestTracker.Infrastructure/
   FlexGCCLLC.WorkRequestTracker.Api/
   FlexGCCLLC.WorkRequestTracker.Tests/
   FlexGCCLLC.WorkRequestTracker.slnx
@@ -79,6 +82,7 @@ Create the SQL Server schema first if the database does not exist:
 ```powershell
 sqlcmd -S "(localdb)\MSSQLLocalDB" -d master -Q "IF DB_ID(N'FlexGCCLLC_WorkRequestTracker') IS NULL CREATE DATABASE FlexGCCLLC_WorkRequestTracker"
 sqlcmd -S "(localdb)\MSSQLLocalDB" -d FlexGCCLLC_WorkRequestTracker -i Database/Scripts/001_CreateWorkRequestTracker.sql
+sqlcmd -S "(localdb)\MSSQLLocalDB" -d FlexGCCLLC_WorkRequestTracker -i Database/Scripts/003_CreateStoredProcedures.sql
 sqlcmd -S "(localdb)\MSSQLLocalDB" -d FlexGCCLLC_WorkRequestTracker -i Database/Scripts/002_SeedDemoData.sql
 ```
 
@@ -163,10 +167,13 @@ Manual SQL Server scripts are available under:
 ```text
 Database/Scripts/001_CreateWorkRequestTracker.sql
 Database/Scripts/002_SeedDemoData.sql
+Database/Scripts/003_CreateStoredProcedures.sql
 Database/Scripts/999_DropWorkRequestTracker.sql
 ```
 
 Object-level table and index definitions are under `Database/Objects/`.
+
+The API runtime uses Dapper through stored procedures only. Inline SQL is kept in database scripts, not in application code.
 
 ```sql
 CREATE TABLE WorkRequests (

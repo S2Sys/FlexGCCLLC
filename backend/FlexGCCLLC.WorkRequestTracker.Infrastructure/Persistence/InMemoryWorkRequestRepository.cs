@@ -1,6 +1,7 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
+using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 
-namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
+namespace FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
 
 public sealed class InMemoryWorkRequestRepository : IWorkRequestRepository
 {

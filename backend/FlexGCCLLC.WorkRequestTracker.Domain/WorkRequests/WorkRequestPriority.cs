@@ -1,4 +1,4 @@
-namespace FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
+namespace FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 
 public enum WorkRequestPriority
 {

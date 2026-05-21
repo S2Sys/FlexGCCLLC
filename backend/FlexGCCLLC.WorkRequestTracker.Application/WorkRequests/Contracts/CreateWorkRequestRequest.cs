@@ -1,4 +1,4 @@
-namespace FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
+namespace FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts;
 
 public sealed record CreateWorkRequestRequest(
     string Title,

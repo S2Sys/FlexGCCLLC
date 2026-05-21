@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.Common;
 using FlexGCCLLC.WorkRequestTracker.Api.Middleware;
+using FlexGCCLLC.WorkRequestTracker.Application.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 

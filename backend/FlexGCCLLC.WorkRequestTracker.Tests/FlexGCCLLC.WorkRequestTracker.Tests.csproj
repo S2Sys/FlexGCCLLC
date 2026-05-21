@@ -22,6 +22,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlexGCCLLC.WorkRequestTracker.Api\FlexGCCLLC.WorkRequestTracker.Api.csproj" />
+    <ProjectReference Include="..\FlexGCCLLC.WorkRequestTracker.Application\FlexGCCLLC.WorkRequestTracker.Application.csproj" />
+    <ProjectReference Include="..\FlexGCCLLC.WorkRequestTracker.Domain\FlexGCCLLC.WorkRequestTracker.Domain.csproj" />
+    <ProjectReference Include="..\FlexGCCLLC.WorkRequestTracker.Infrastructure\FlexGCCLLC.WorkRequestTracker.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

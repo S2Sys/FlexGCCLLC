@@ -1,5 +1,5 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.Common;
 using FlexGCCLLC.WorkRequestTracker.Api.Controllers;
+using FlexGCCLLC.WorkRequestTracker.Application.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

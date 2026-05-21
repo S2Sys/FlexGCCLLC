@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+    <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FlexGCCLLC.WorkRequestTracker.Application\FlexGCCLLC.WorkRequestTracker.Application.csproj" />
-    <ProjectReference Include="..\FlexGCCLLC.WorkRequestTracker.Infrastructure\FlexGCCLLC.WorkRequestTracker.Infrastructure.csproj" />
+    <ProjectReference Include="..\FlexGCCLLC.WorkRequestTracker.Domain\FlexGCCLLC.WorkRequestTracker.Domain.csproj" />
   </ItemGroup>
 
 </Project>

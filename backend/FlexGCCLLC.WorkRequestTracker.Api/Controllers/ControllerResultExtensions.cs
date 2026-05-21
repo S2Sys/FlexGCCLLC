@@ -1,4 +1,4 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.Common;
+using FlexGCCLLC.WorkRequestTracker.Application.Common;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlexGCCLLC.WorkRequestTracker.Api.Controllers;

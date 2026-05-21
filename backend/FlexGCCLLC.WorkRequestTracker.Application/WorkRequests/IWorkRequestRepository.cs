@@ -1,6 +1,6 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
+using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 
-namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
+namespace FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 
 public interface IWorkRequestRepository
 {

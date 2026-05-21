@@ -1,4 +1,4 @@
-namespace FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
+namespace FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 
 public sealed class WorkRequest
 {

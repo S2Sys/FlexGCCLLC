@@ -1,8 +1,9 @@
-using FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests;
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests;
-using FlexGCCLLC.WorkRequestTracker.Api.Features.WorkRequests.Models;
-using ContractPriority = FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests.WorkRequestPriority;
-using ContractStatus = FlexGCCLLC.WorkRequestTracker.Api.Contracts.WorkRequests.WorkRequestStatus;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
+using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts;
+using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
+using FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
+using ContractPriority = FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts.WorkRequestPriority;
+using ContractStatus = FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts.WorkRequestStatus;
 
 namespace FlexGCCLLC.WorkRequestTracker.Tests;
 
