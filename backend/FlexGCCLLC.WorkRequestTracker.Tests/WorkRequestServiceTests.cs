@@ -139,7 +139,7 @@ public class WorkRequestServiceTests
     public void Dapper_repository_implements_work_request_repository_contract()
     {
         IWorkRequestRepository repository = new DapperWorkRequestRepository(
-            "Server=(localdb)\\MSSQLLocalDB;Database=FlexGCCLLC_WorkRequestTracker;Trusted_Connection=True;TrustServerCertificate=True");
+            () => throw new InvalidOperationException("Connection factory is not used by this contract test."));
 
         Assert.IsType<DapperWorkRequestRepository>(repository);
     }

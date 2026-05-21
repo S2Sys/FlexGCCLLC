@@ -33,6 +33,29 @@ public class ArchitectureTests
         Assert.DoesNotContain("DELETE ", repositorySource, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public void SqlClient_is_only_used_at_api_composition_root()
+    {
+        var backendRoot = FindBackendRoot();
+        var repositoryPath = Path.Combine(
+            backendRoot,
+            "FlexGCCLLC.WorkRequestTracker.Infrastructure",
+            "Persistence",
+            "DapperWorkRequestRepository.cs");
+        var programPath = Path.Combine(
+            backendRoot,
+            "FlexGCCLLC.WorkRequestTracker.Api",
+            "Program.cs");
+
+        var repositorySource = File.ReadAllText(repositoryPath);
+        var programSource = File.ReadAllText(programPath);
+
+        Assert.DoesNotContain("Microsoft.Data.SqlClient", repositorySource);
+        Assert.Contains("IDbConnection", repositorySource);
+        Assert.Contains("Microsoft.Data.SqlClient", programSource);
+        Assert.Contains("IDbConnection", programSource);
+    }
+
     private static string FindBackendRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

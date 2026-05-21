@@ -2,7 +2,6 @@ using System.Data;
 using Dapper;
 using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
-using Microsoft.Data.SqlClient;
 
 namespace FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
 
@@ -14,16 +13,11 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
     private const string UpdateProcedure = "dbo.usp_WorkRequests_Update";
     private const string AddNoteProcedure = "dbo.usp_WorkRequestNotes_Add";
 
-    private readonly string _connectionString;
+    private readonly Func<IDbConnection> _connectionFactory;
 
-    public DapperWorkRequestRepository(string connectionString)
+    public DapperWorkRequestRepository(Func<IDbConnection> connectionFactory)
     {
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new ArgumentException("A SQL Server connection string is required.", nameof(connectionString));
-        }
-
-        _connectionString = connectionString;
+        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     }
 
     public IReadOnlyList<WorkRequest> GetAll()
@@ -104,7 +98,7 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
         return note;
     }
 
-    private SqlConnection CreateConnection() => new(_connectionString);
+    private IDbConnection CreateConnection() => _connectionFactory();
 
     private static IReadOnlyList<WorkRequest> HydrateNotes(
         IReadOnlyList<WorkRequestRow> rows,
