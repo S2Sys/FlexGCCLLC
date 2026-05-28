@@ -6,9 +6,10 @@ interface WorkRequestListProps {
   requests: WorkRequest[]
   onStatusChange: (id: number, status: WorkRequestStatus) => Promise<void>
   onAddNote: (id: number, noteText: string) => Promise<void>
+  onEdit: (request: WorkRequest) => void
 }
 
-export function WorkRequestList({ requests, onStatusChange, onAddNote }: WorkRequestListProps) {
+export function WorkRequestList({ requests, onStatusChange, onAddNote, onEdit }: WorkRequestListProps) {
   if (requests.length === 0) {
     return <p className="empty">No work requests match the current filters.</p>
   }
@@ -21,6 +22,7 @@ export function WorkRequestList({ requests, onStatusChange, onAddNote }: WorkReq
           request={request}
           onAddNote={onAddNote}
           onStatusChange={onStatusChange}
+          onEdit={onEdit}
         />
       ))}
     </div>
@@ -31,9 +33,10 @@ interface WorkRequestRowProps {
   request: WorkRequest
   onStatusChange: (id: number, status: WorkRequestStatus) => Promise<void>
   onAddNote: (id: number, noteText: string) => Promise<void>
+  onEdit: (request: WorkRequest) => void
 }
 
-function WorkRequestRow({ request, onStatusChange, onAddNote }: WorkRequestRowProps) {
+function WorkRequestRow({ request, onStatusChange, onAddNote, onEdit }: WorkRequestRowProps) {
   const [note, setNote] = useState('')
 
   async function submitNote(event: FormEvent<HTMLFormElement>) {
@@ -49,9 +52,17 @@ function WorkRequestRow({ request, onStatusChange, onAddNote }: WorkRequestRowPr
           <h2>{request.title}</h2>
           <p>{request.clientName}</p>
         </div>
-        <span className={`priority priority-${request.priority.toLowerCase()}`}>
-          {request.priority}
-        </span>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span className={`priority priority-${request.priority.toLowerCase()}`}>{request.priority}</span>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ minHeight: 30, padding: '0 10px', fontSize: 12 }}
+            onClick={() => onEdit(request)}
+          >
+            Edit
+          </button>
+        </div>
       </header>
 
       <p className="description">{request.description}</p>
