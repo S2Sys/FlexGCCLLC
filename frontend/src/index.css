@@ -690,5 +690,15 @@ h2 {
 
 .required-mark {
   color: var(--danger);
+  display: inline-block;
   font-weight: 800;
+  line-height: 1;
+  margin-left: 2px;
+  vertical-align: text-top;
+}
+
+.label-title {
+  align-items: center;
+  display: inline-flex;
+  gap: 2px;
 }

@@ -19,12 +19,12 @@ Authentication, deployment, notifications, background jobs, and production infra
 
 ```text
 backend/
-  FlexGCCLLC.WorkRequestTracker.Domain/
-  FlexGCCLLC.WorkRequestTracker.Application/
-  FlexGCCLLC.WorkRequestTracker.Infrastructure/
-  FlexGCCLLC.WorkRequestTracker.Api/
-  FlexGCCLLC.WorkRequestTracker.Tests/
-  FlexGCCLLC.WorkRequestTracker.slnx
+  FlexGCC.WRT.Domain/
+  FlexGCC.WRT.Application/
+  FlexGCC.WRT.Infrastructure/
+  FlexGCC.WRT.Api/
+  FlexGCC.WRT.Tests/
+  FlexGCC.WRT.slnx
 
 Database/
   Objects/
@@ -61,6 +61,84 @@ Error responses use:
 }
 ```
 
+## Architecture And Design Patterns
+
+### Overall Architecture
+
+This project follows a layered architecture with clear dependency direction:
+
+- `FlexGCC.WRT.Api` -> HTTP transport, endpoint wiring, middleware, DI
+- `FlexGCC.WRT.Application` -> use-case orchestration, DTO contracts, validation, result envelope
+- `FlexGCC.WRT.Domain` -> core entities, enums, domain events, aggregate root behavior
+- `FlexGCC.WRT.Infrastructure` -> persistence, stored procedure execution, outbox persistence, resilience plumbing
+- `FlexGCC.WRT.Tests` -> unit and architecture-level tests
+
+Dependency rule:
+
+- `Api` depends on `Application` + `Infrastructure`
+- `Infrastructure` depends on `Application` + `Domain`
+- `Application` depends on `Domain`
+- `Domain` depends on no higher layer
+
+### Backend Patterns Implemented
+
+- `Result Pattern`: operations return success/failure with structured error metadata (`Result<T>`, `ApiResponse<T>`, `ApiErrorResponse`)
+- `Repository Pattern`: `IWorkRequestRepository` abstracts read/write operations from application logic
+- `Unit of Work Pattern`: `IUnitOfWork`/`UnitOfWork` manages transaction boundary behavior
+- `Outbox Pattern`: domain events are persisted into `OutboxMessages` through `IOutboxRepository`/`OutboxRepository`
+- `Decorator Pattern`: `LoggingWorkRequestRepository` wraps repository calls for observability
+- `Domain Events`: `WorkRequestCreatedEvent`, `WorkRequestStatusChangedEvent` raised from domain entity and forwarded to outbox
+- `Resilience Wrapper`: SQL connection-open operation is executed via `SqlResiliencePipeline`
+- `Minimal API Pattern`: endpoint grouping under `/api/v1/work-requests` with explicit request/response contracts
+
+### Request Processing Flow
+
+For a typical request (example: list work requests):
+
+1. Endpoint receives query params (`status`, `search`, `page`, `pageSize`)
+2. API maps to `WorkRequestService.List(...)`
+3. Application validates status/paging boundaries and delegates to repository
+4. Repository executes stored procedure via Dapper
+5. Stored procedure performs filtering, follow-up-first ordering, paging, and note selection
+6. Application maps domain models to DTOs and wraps in `PagedResult<T>`
+7. API returns standardized envelope to frontend
+
+### Data Access Design
+
+- Dapper is used as a lightweight data mapper over SQL Server
+- All primary operations are routed via stored procedures (no inline SQL in app layer)
+- `usp_WorkRequests_GetAll` supports:
+  - optional status filter
+  - optional title/client search
+  - server-side paging
+  - follow-up required first ordering (`Blocked`/`InProgress`)
+  - latest updated ordering within each priority band
+- Notes are returned as a separate result set and hydrated in repository (`HydrateNotes`)
+
+### Frontend Design Patterns
+
+- `Container/Page + Presentational Components`:
+  - `WorkRequestsPage` handles state, API calls, and action orchestration
+  - components (`WorkRequestList`, `WorkRequestFilters`, `WorkRequestFormModal`) handle focused UI concerns
+- `Single API Gateway Module`: `frontend/src/lib/api/workRequestsApi.ts`
+- `Controlled Form Pattern`: add/update form modal uses controlled state and required-field validation
+- `Status Grouping UI Pattern`: work requests are grouped by status with visual highlight bands
+
+### Cross-Cutting Concerns
+
+- `GlobalExceptionMiddleware`: centralized exception-to-response mapping
+- `RequestTracingMiddleware`: per-request tracing boundary
+- `CORS`: localhost dev origins configured for Vite ports (`5173`, `5174`)
+- `Swagger/OpenAPI`: enabled for endpoint discovery and manual testing
+- `Health Checks`: `/health` endpoint for runtime sanity verification
+
+### Why This Design
+
+- Keeps domain/business logic testable and independent of HTTP/DB concerns
+- Supports iterative enhancement from assessment scope to production hardening
+- Enables clear ownership boundaries between API contracts, business orchestration, and persistence
+- Provides practical reliability hooks (outbox, resilience, middleware, structured errors) without overengineering
+
 ## Frontend
 
 The React app includes:
@@ -86,10 +164,10 @@ sqlcmd -S "(localdb)\MSSQLLocalDB" -d FlexGCCLLC_WorkRequestTracker -i Database/
 sqlcmd -S "(localdb)\MSSQLLocalDB" -d FlexGCCLLC_WorkRequestTracker -i Database/Scripts/002_SeedDemoData.sql
 ```
 
-The default connection string is in `backend/FlexGCCLLC.WorkRequestTracker.Api/appsettings.json` under `ConnectionStrings:WorkRequestTracker`.
+The default connection string is in `backend/FlexGCC.WRT.Api/appsettings.json` under `ConnectionStrings:WorkRequestTracker`.
 
 ```powershell
-dotnet run --project backend/FlexGCCLLC.WorkRequestTracker.Api
+dotnet run --project backend/FlexGCC.WRT.Api
 ```
 
 Then check:
@@ -121,8 +199,8 @@ http://localhost:5173
 From the repository root:
 
 ```powershell
-dotnet build backend/FlexGCCLLC.WorkRequestTracker.slnx
-dotnet test backend/FlexGCCLLC.WorkRequestTracker.slnx
+dotnet build backend/FlexGCC.WRT.slnx
+dotnet test backend/FlexGCC.WRT.slnx
 ```
 
 From `frontend/`:
@@ -212,3 +290,4 @@ ON WorkRequests (ClientName, Title);
 - SQL Server must be created manually with the scripts under `Database/Scripts`.
 - Status transition rules are not enforced beyond enum validation.
 - Styling is intentionally minimal and assessment-focused.
+- Paging on Work Request Tracke List.
