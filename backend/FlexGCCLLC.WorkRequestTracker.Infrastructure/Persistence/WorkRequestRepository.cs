@@ -5,7 +5,7 @@ using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 
 namespace FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
 
-public sealed class DapperWorkRequestRepository : IWorkRequestRepository
+public sealed class WorkRequestRepository : IWorkRequestRepository
 {
     private const string GetAllProcedure = "dbo.usp_WorkRequests_GetAll";
     private const string GetByIdProcedure = "dbo.usp_WorkRequests_GetById";
@@ -15,7 +15,7 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
 
     private readonly Func<IDbConnection> _connectionFactory;
 
-    public DapperWorkRequestRepository(Func<IDbConnection> connectionFactory)
+    public WorkRequestRepository(Func<IDbConnection> connectionFactory)
     {
         _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
     }
@@ -63,7 +63,7 @@ public sealed class DapperWorkRequestRepository : IWorkRequestRepository
             },
             commandType: CommandType.StoredProcedure);
 
-        return GetById(id) ?? throw new InvalidOperationException("Created work request could not be loaded.");
+        return GetById(id) ?? throw new WorkRequestPersistenceException("Created work request could not be loaded.");
     }
 
     public WorkRequest Update(WorkRequest request)

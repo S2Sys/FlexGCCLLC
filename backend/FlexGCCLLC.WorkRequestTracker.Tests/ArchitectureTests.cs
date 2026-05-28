@@ -20,7 +20,7 @@ public class ArchitectureTests
             backendRoot,
             "FlexGCCLLC.WorkRequestTracker.Infrastructure",
             "Persistence",
-            "DapperWorkRequestRepository.cs");
+            "WorkRequestRepository.cs");
 
         Assert.True(File.Exists(repositoryPath));
 
@@ -41,7 +41,7 @@ public class ArchitectureTests
             backendRoot,
             "FlexGCCLLC.WorkRequestTracker.Infrastructure",
             "Persistence",
-            "DapperWorkRequestRepository.cs");
+            "WorkRequestRepository.cs");
         var programPath = Path.Combine(
             backendRoot,
             "FlexGCCLLC.WorkRequestTracker.Api",

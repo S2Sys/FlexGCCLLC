@@ -108,6 +108,25 @@ public sealed class WorkRequestService
         return Result<WorkRequestDto>.Success(ToDto(_repository.Update(entity)));
     }
 
+    public Result<WorkRequestDto> Update(int id, UpdateWorkRequestRequest request)
+    {
+        var errors = WorkRequestValidator.ValidateUpdate(request);
+        if (errors.Count > 0)
+            return Result<WorkRequestDto>.Failure("ValidationError", "Work request is invalid.", errors);
+
+        var entity = _repository.GetById(id);
+        if (entity is null)
+            return Result<WorkRequestDto>.Failure("NotFound", "Work request was not found.");
+
+        entity.Title = request.Title.Trim();
+        entity.ClientName = request.ClientName.Trim();
+        entity.Description = request.Description.Trim();
+        entity.Priority = ToDomainPriority(request.Priority);
+        entity.DueDate = request.DueDate;
+        entity.UpdatedDate = DateTime.UtcNow;
+        return Result<WorkRequestDto>.Success(ToDto(_repository.Update(entity)));
+    }
+
     public Result<WorkRequestNoteDto> AddNote(int id, AddWorkRequestNoteRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.NoteText))
