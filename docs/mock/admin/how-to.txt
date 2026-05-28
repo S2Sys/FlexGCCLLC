@@ -1,1 +1,0 @@
-paste ur admin template here it u want override predefined template

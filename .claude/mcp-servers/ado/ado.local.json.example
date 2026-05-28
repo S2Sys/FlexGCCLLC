@@ -1,5 +1,0 @@
-{
-  "ADO_PAT":     "your-azure-devops-personal-access-token",
-  "ADO_ORG_URL": "https://dev.azure.com/your-org",
-  "ADO_PROJECT": "YourProjectName"
-}
