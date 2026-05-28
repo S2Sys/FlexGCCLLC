@@ -138,9 +138,12 @@ p {
 }
 
 .admin-nav {
-  display: grid;
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
   flex: 1;
   gap: 4px;
+  justify-content: flex-start;
   overflow: auto;
   padding: 14px 10px;
 }
@@ -158,6 +161,8 @@ p {
   background: transparent;
   color: var(--text-soft);
   display: flex;
+  flex: 0 0 auto;
+  height: auto;
   justify-content: space-between;
   min-height: 42px;
   padding: 8px 10px;
@@ -366,6 +371,90 @@ h2 {
 .request-list {
   display: grid;
   gap: 12px;
+}
+
+.status-group {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.status-group-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+
+.status-group-header strong {
+  font-size: 13px;
+}
+
+.status-group-header span {
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  min-width: 26px;
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.status-group-list {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.status-new {
+  background: #eff6ff;
+}
+
+.status-new .status-group-header {
+  background: #dbeafe;
+}
+
+.status-new .status-group-header span {
+  background: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.status-inprogress {
+  background: #ecfdf5;
+}
+
+.status-inprogress .status-group-header {
+  background: #d1fae5;
+}
+
+.status-inprogress .status-group-header span {
+  background: #a7f3d0;
+  color: #047857;
+}
+
+.status-blocked {
+  background: #fff7ed;
+}
+
+.status-blocked .status-group-header {
+  background: #ffedd5;
+}
+
+.status-blocked .status-group-header span {
+  background: #fed7aa;
+  color: #b45309;
+}
+
+.status-completed {
+  background: #f0fdf4;
+}
+
+.status-completed .status-group-header {
+  background: #dcfce7;
+}
+
+.status-completed .status-group-header span {
+  background: #bbf7d0;
+  color: #15803d;
 }
 
 .request-row {
@@ -597,4 +686,9 @@ h2 {
 
 .btn-secondary:hover {
   background: var(--panel-sunken);
+}
+
+.required-mark {
+  color: var(--danger);
+  font-weight: 800;
 }

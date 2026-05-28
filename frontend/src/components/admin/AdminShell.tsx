@@ -7,9 +7,6 @@ interface AdminShellProps {
 
 const navItems = [
   { label: 'Work Requests', meta: 'Active', active: true },
-  { label: 'Clients', meta: 'Scope' },
-  { label: 'Activity', meta: 'Notes' },
-  { label: 'Settings', meta: 'Local' },
 ]
 
 export function AdminShell({ children, visibleCount }: AdminShellProps) {
@@ -56,11 +53,10 @@ export function AdminShell({ children, visibleCount }: AdminShellProps) {
         <header className="admin-topbar">
           <div className="admin-search">
             <span aria-hidden="true">Search</span>
-            <input aria-label="Global search" placeholder="Search work requests or clients" />
+            <input aria-label="Global search" placeholder="Search work requests" />
           </div>
           <div className="admin-actions">
             <span className="topbar-pill">{visibleCount} visible</span>
-            <span className="topbar-pill">Draft</span>
           </div>
         </header>
 

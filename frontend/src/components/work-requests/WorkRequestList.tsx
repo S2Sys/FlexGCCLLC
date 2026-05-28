@@ -14,16 +14,34 @@ export function WorkRequestList({ requests, onStatusChange, onAddNote, onEdit }:
     return <p className="empty">No work requests match the current filters.</p>
   }
 
+  const statusOrder: WorkRequestStatus[] = ['Blocked', 'InProgress', 'New', 'Completed']
+  const grouped = statusOrder
+    .map((status) => ({
+      status,
+      items: requests.filter((request) => request.status === status),
+    }))
+    .filter((group) => group.items.length > 0)
+
   return (
     <div className="request-list">
-      {requests.map((request) => (
-        <WorkRequestRow
-          key={request.id}
-          request={request}
-          onAddNote={onAddNote}
-          onStatusChange={onStatusChange}
-          onEdit={onEdit}
-        />
+      {grouped.map((group) => (
+        <section key={group.status} className={`status-group status-${group.status.toLowerCase()}`}>
+          <header className="status-group-header">
+            <strong>{group.status}</strong>
+            <span>{group.items.length}</span>
+          </header>
+          <div className="status-group-list">
+            {group.items.map((request) => (
+              <WorkRequestRow
+                key={request.id}
+                request={request}
+                onAddNote={onAddNote}
+                onStatusChange={onStatusChange}
+                onEdit={onEdit}
+              />
+            ))}
+          </div>
+        </section>
       ))}
     </div>
   )

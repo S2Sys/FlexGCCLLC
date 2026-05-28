@@ -80,11 +80,11 @@ export function WorkRequestFormModal({
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
           <label>
-            Title
+            Title <span className="required-mark">*</span>
             <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
           </label>
           <label>
-            Client
+            Client <span className="required-mark">*</span>
             <input value={form.clientName} onChange={(e) => setForm({ ...form, clientName: e.target.value })} required />
           </label>
           <label>
@@ -102,12 +102,12 @@ export function WorkRequestFormModal({
             </label>
           )}
           <label>
-            Due date
+            Due date <span className="required-mark">*</span>
             <input type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} required />
           </label>
         </div>
         <label style={{ marginTop: 12, display: 'grid', gap: 6 }}>
-          Description
+          Description <span className="required-mark">*</span>
           <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required rows={3} />
         </label>
         <div className="modal-actions">
