@@ -1,15 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace FlexGCCLLC.WorkRequestTracker.Application.Common;
 
 public sealed class ApiResponse<T>
 {
-    // Required for JSON deserialization
-    public ApiResponse()
-    {
-        Success = false;
-        Data = default;
-        Error = null;
-    }
-
+    [JsonConstructor]
     private ApiResponse(bool success, T? data, ApiErrorResponse? error)
     {
         Success = success;
@@ -17,9 +12,9 @@ public sealed class ApiResponse<T>
         Error = error;
     }
 
-    public bool Success { get; init; }
-    public T? Data { get; init; }
-    public ApiErrorResponse? Error { get; init; }
+    public bool Success { get; }
+    public T? Data { get; }
+    public ApiErrorResponse? Error { get; }
 
     public static ApiResponse<T> Ok(T data) => new(true, data, null);
     public static ApiResponse<T> Fail(ApiErrorResponse error) => new(false, default, error);
