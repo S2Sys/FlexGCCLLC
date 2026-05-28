@@ -30,6 +30,7 @@ builder.Services.AddScoped<IWorkRequestRepository>(sp =>
     new LoggingWorkRequestRepository(
         sp.GetRequiredService<WorkRequestRepository>(),
         sp.GetRequiredService<ILogger<LoggingWorkRequestRepository>>()));
+builder.Services.AddScoped<IOutboxRepository, DapperOutboxRepository>();
 builder.Services.AddScoped<WorkRequestService>();
 builder.Services.AddHealthChecks();
 builder.Services.AddCors(options =>
