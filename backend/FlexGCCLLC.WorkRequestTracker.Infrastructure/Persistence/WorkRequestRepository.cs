@@ -1,5 +1,6 @@
 using System.Data;
 using Dapper;
+using FlexGCCLLC.WorkRequestTracker.Application.Common;
 using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 
@@ -17,7 +18,7 @@ public sealed class WorkRequestRepository : IWorkRequestRepository
 
     public WorkRequestRepository(Func<IDbConnection> connectionFactory)
     {
-        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+        _connectionFactory = Guard.NotNull(connectionFactory, nameof(connectionFactory));
     }
 
     public IReadOnlyList<WorkRequest> GetAll()
