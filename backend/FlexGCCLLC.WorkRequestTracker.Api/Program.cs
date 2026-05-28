@@ -1,5 +1,6 @@
 using FlexGCCLLC.WorkRequestTracker.Api.Endpoints;
 using FlexGCCLLC.WorkRequestTracker.Api.Middleware;
+using FlexGCCLLC.WorkRequestTracker.Application.Common;
 using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 using FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
@@ -22,6 +23,8 @@ builder.Services.AddScoped<Func<IDbConnection>>(services =>
 
     return () => new SqlConnection(connectionString);
 });
+builder.Services.AddScoped<IUnitOfWork>(sp =>
+    new DapperUnitOfWork(sp.GetRequiredService<Func<IDbConnection>>()));
 builder.Services.AddScoped<WorkRequestRepository>();
 builder.Services.AddScoped<IWorkRequestRepository>(sp =>
     new LoggingWorkRequestRepository(
