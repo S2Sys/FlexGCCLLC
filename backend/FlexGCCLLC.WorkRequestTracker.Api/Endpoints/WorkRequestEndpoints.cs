@@ -51,6 +51,13 @@ public static class WorkRequestEndpoints
             .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound);
 
+        group.MapPut("/{id:int}", (WorkRequestService service, int id, UpdateWorkRequestRequest request) =>
+            service.Update(id, request).ToEndpointResult())
+            .WithName("UpdateWorkRequestV1")
+            .Produces<WorkRequestDto>()
+            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound);
+
         group.MapPost("/{id:int}/notes", (
                 WorkRequestService service,
                 int id,
