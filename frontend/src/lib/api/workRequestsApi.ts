@@ -1,5 +1,6 @@
 import type {
   CreateWorkRequestInput,
+  UpdateWorkRequestInput,
   WorkRequest,
   WorkRequestNote,
   WorkRequestStatus,
@@ -18,26 +19,19 @@ interface ApiErrorResponse {
   details?: string[]
 }
 
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7080').replace(
-  /\/$/,
-  '',
-)
+interface ApiResponse<T> {
+  success: boolean
+  data?: T
+  error?: ApiErrorResponse
+}
+
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7080').replace(/\/$/, '')
 
 export async function listWorkRequests(status: string, search: string) {
-  const query = new URLSearchParams({
-    page: '1',
-    pageSize: '20',
-  })
-
-  if (status !== 'All') {
-    query.set('status', status)
-  }
-
+  const query = new URLSearchParams({ page: '1', pageSize: '20' })
+  if (status !== 'All') query.set('status', status)
   const normalizedSearch = search.trim()
-  if (normalizedSearch.length > 0) {
-    query.set('search', normalizedSearch)
-  }
-
+  if (normalizedSearch.length > 0) query.set('search', normalizedSearch)
   const result = await request<PagedResult<WorkRequest>>(`/api/v1/work-requests?${query}`)
   return result.items
 }
@@ -45,10 +39,14 @@ export async function listWorkRequests(status: string, search: string) {
 export function createWorkRequest(input: CreateWorkRequestInput) {
   return request<WorkRequest>('/api/v1/work-requests', {
     method: 'POST',
-    body: JSON.stringify({
-      ...input,
-      dueDate: new Date(input.dueDate).toISOString(),
-    }),
+    body: JSON.stringify({ ...input, dueDate: new Date(input.dueDate).toISOString() }),
+  })
+}
+
+export function updateWorkRequest(id: number, input: UpdateWorkRequestInput) {
+  return request<WorkRequest>(`/api/v1/work-requests/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ ...input, dueDate: new Date(input.dueDate).toISOString() }),
   })
 }
 
@@ -66,28 +64,19 @@ export function addWorkRequestNote(id: number, noteText: string) {
   })
 }
 
-async function request<T>(path: string, init?: RequestInit) {
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...init?.headers,
-    },
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
 
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response))
+  const envelope = (await response.json()) as ApiResponse<T>
+
+  if (!response.ok || !envelope.success) {
+    const err = envelope.error
+    const details = err?.details?.filter(Boolean).join(' ')
+    throw new Error(details || err?.message || `Request failed with ${response.status}.`)
   }
 
-  return (await response.json()) as T
-}
-
-async function readErrorMessage(response: Response) {
-  try {
-    const error = (await response.json()) as ApiErrorResponse
-    const details = error.details?.filter(Boolean).join(' ')
-    return details || error.message || `Request failed with ${response.status}.`
-  } catch {
-    return `Request failed with ${response.status}.`
-  }
+  return envelope.data as T
 }
