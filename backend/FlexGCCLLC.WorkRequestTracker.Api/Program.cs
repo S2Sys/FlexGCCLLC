@@ -22,7 +22,7 @@ builder.Services.AddScoped<Func<IDbConnection>>(services =>
 
     return () => new SqlConnection(connectionString);
 });
-builder.Services.AddScoped<IWorkRequestRepository, DapperWorkRequestRepository>();
+builder.Services.AddScoped<IWorkRequestRepository, WorkRequestRepository>();
 builder.Services.AddScoped<WorkRequestService>();
 builder.Services.AddHealthChecks();
 builder.Services.AddCors(options =>
