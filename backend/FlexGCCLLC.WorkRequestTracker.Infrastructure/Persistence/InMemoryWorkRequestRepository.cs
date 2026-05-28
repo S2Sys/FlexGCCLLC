@@ -20,7 +20,12 @@ public sealed class InMemoryWorkRequestRepository : IWorkRequestRepository
         return request;
     }
 
-    public WorkRequest Update(WorkRequest request) => request;
+    public WorkRequest Update(WorkRequest request)
+    {
+        var index = _requests.FindIndex(r => r.Id == request.Id);
+        if (index >= 0) _requests[index] = request;
+        return request;
+    }
 
     public WorkRequestNote AddNote(int workRequestId, string noteText, DateTime createdDate)
     {

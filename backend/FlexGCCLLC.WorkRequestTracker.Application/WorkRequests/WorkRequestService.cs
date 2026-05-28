@@ -1,6 +1,8 @@
+using System.Text.Json;
 using FlexGCCLLC.WorkRequestTracker.Application.Common;
 using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts;
 using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Validation;
+using FlexGCCLLC.WorkRequestTracker.Domain.Common;
 using FlexGCCLLC.WorkRequestTracker.Domain.WorkRequests;
 using ContractPriority = FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts.WorkRequestPriority;
 using ContractStatus = FlexGCCLLC.WorkRequestTracker.Application.WorkRequests.Contracts.WorkRequestStatus;
@@ -12,10 +14,12 @@ namespace FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 public sealed class WorkRequestService
 {
     private readonly IWorkRequestRepository _repository;
+    private readonly IOutboxRepository? _outbox;
 
-    public WorkRequestService(IWorkRequestRepository repository)
+    public WorkRequestService(IWorkRequestRepository repository, IOutboxRepository? outbox = null)
     {
         _repository = repository;
+        _outbox = outbox;
     }
 
     public Result<PagedResult<WorkRequestDto>> List(ContractStatus? status, string? search, int page, int pageSize)
@@ -85,7 +89,10 @@ public sealed class WorkRequestService
             UpdatedDate = now
         };
 
-        return Result<WorkRequestDto>.Success(ToDto(_repository.Add(entity)));
+        var added = _repository.Add(entity);
+        added.RaiseCreated();
+        FlushEvents(added);
+        return Result<WorkRequestDto>.Success(ToDto(added));
     }
 
     public Result<WorkRequestDto> UpdateStatus(int id, UpdateWorkRequestStatusRequest request)
@@ -103,7 +110,30 @@ public sealed class WorkRequestService
             return Result<WorkRequestDto>.Failure("NotFound", "Work request was not found.");
         }
 
+        var previousStatus = entity.Status;
         entity.Status = ToDomainStatus(request.Status);
+        entity.UpdatedDate = DateTime.UtcNow;
+        var updated = _repository.Update(entity);
+        updated.RaiseStatusChanged(previousStatus, ToDomainStatus(request.Status));
+        FlushEvents(updated);
+        return Result<WorkRequestDto>.Success(ToDto(updated));
+    }
+
+    public Result<WorkRequestDto> Update(int id, UpdateWorkRequestRequest request)
+    {
+        var errors = WorkRequestValidator.ValidateUpdate(request);
+        if (errors.Count > 0)
+            return Result<WorkRequestDto>.Failure("ValidationError", "Work request is invalid.", errors);
+
+        var entity = _repository.GetById(id);
+        if (entity is null)
+            return Result<WorkRequestDto>.Failure("NotFound", "Work request was not found.");
+
+        entity.Title = request.Title.Trim();
+        entity.ClientName = request.ClientName.Trim();
+        entity.Description = request.Description.Trim();
+        entity.Priority = ToDomainPriority(request.Priority);
+        entity.DueDate = request.DueDate;
         entity.UpdatedDate = DateTime.UtcNow;
         return Result<WorkRequestDto>.Success(ToDto(_repository.Update(entity)));
     }
@@ -125,6 +155,19 @@ public sealed class WorkRequestService
 
         var note = _repository.AddNote(id, request.NoteText.Trim(), DateTime.UtcNow);
         return Result<WorkRequestNoteDto>.Success(ToDto(note));
+    }
+
+    private void FlushEvents(WorkRequest entity)
+    {
+        if (_outbox is null) return;
+        foreach (var evt in entity.PullDomainEvents())
+        {
+            _outbox.Save(new OutboxMessage
+            {
+                EventType = evt.GetType().Name,
+                Payload = JsonSerializer.Serialize(evt, evt.GetType()),
+            });
+        }
     }
 
     private static WorkRequestDto ToDto(WorkRequest request) =>

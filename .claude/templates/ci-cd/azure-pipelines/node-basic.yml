@@ -1,0 +1,30 @@
+trigger:
+  - main
+  - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  nodeVersion: '18.x'
+
+stages:
+  - stage: Build
+    displayName: 'Build & Test'
+    jobs:
+      - job: BuildJob
+        displayName: 'Node.js Build'
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+            displayName: 'Install Node.js'
+
+          - script: npm install
+            displayName: 'Install Dependencies'
+
+          - script: npm test
+            displayName: 'Run Tests'
+
+          - script: npm run build
+            displayName: 'Build Application'

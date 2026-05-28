@@ -30,3 +30,11 @@ export interface CreateWorkRequestInput {
   status: WorkRequestStatus
   dueDate: string
 }
+
+export interface UpdateWorkRequestInput {
+  title: string
+  clientName: string
+  description: string
+  priority: WorkRequestPriority
+  dueDate: string
+}

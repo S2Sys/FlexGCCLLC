@@ -22,24 +22,26 @@ public static class WorkRequestEndpoints
                 return result.ToEndpointResult();
             })
             .WithName("ListWorkRequestsV1")
-            .Produces<PagedResult<WorkRequestDto>>();
+            .Produces<ApiResponse<PagedResult<WorkRequestDto>>>();
 
         group.MapGet("/{id:int}", (WorkRequestService service, int id) =>
             service.GetById(id).ToEndpointResult())
             .WithName("GetWorkRequestByIdV1")
-            .Produces<WorkRequestDto>()
-            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound);
+            .Produces<ApiResponse<WorkRequestDto>>()
+            .Produces<ApiResponse<string>>(StatusCodes.Status404NotFound);
 
         group.MapPost("/", (WorkRequestService service, CreateWorkRequestRequest request) =>
             {
                 var result = service.Create(request);
                 return result.IsSuccess
-                    ? Results.Created($"/api/v1/work-requests/{result.Value!.Id}", result.Value)
+                    ? Results.Created(
+                        $"/api/v1/work-requests/{result.Value!.Id}",
+                        ApiResponse<WorkRequestDto>.Ok(result.Value))
                     : result.ToEndpointResult();
             })
             .WithName("CreateWorkRequestV1")
-            .Produces<WorkRequestDto>(StatusCodes.Status201Created)
-            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest);
+            .Produces<ApiResponse<WorkRequestDto>>(StatusCodes.Status201Created)
+            .Produces<ApiResponse<string>>(StatusCodes.Status400BadRequest);
 
         group.MapPatch("/{id:int}/status", (
                 WorkRequestService service,
@@ -47,9 +49,16 @@ public static class WorkRequestEndpoints
                 UpdateWorkRequestStatusRequest request) =>
             service.UpdateStatus(id, request).ToEndpointResult())
             .WithName("UpdateWorkRequestStatusV1")
-            .Produces<WorkRequestDto>()
-            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound);
+            .Produces<ApiResponse<WorkRequestDto>>()
+            .Produces<ApiResponse<string>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<string>>(StatusCodes.Status404NotFound);
+
+        group.MapPut("/{id:int}", (WorkRequestService service, int id, UpdateWorkRequestRequest request) =>
+            service.Update(id, request).ToEndpointResult())
+            .WithName("UpdateWorkRequestV1")
+            .Produces<ApiResponse<WorkRequestDto>>()
+            .Produces<ApiResponse<string>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<string>>(StatusCodes.Status404NotFound);
 
         group.MapPost("/{id:int}/notes", (
                 WorkRequestService service,
@@ -57,9 +66,9 @@ public static class WorkRequestEndpoints
                 AddWorkRequestNoteRequest request) =>
             service.AddNote(id, request).ToEndpointResult())
             .WithName("AddWorkRequestNoteV1")
-            .Produces<WorkRequestNoteDto>()
-            .Produces<ApiErrorResponse>(StatusCodes.Status400BadRequest)
-            .Produces<ApiErrorResponse>(StatusCodes.Status404NotFound);
+            .Produces<ApiResponse<WorkRequestNoteDto>>()
+            .Produces<ApiResponse<string>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<string>>(StatusCodes.Status404NotFound);
 
         return app;
     }

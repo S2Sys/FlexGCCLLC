@@ -1,0 +1,30 @@
+trigger:
+  - main
+  - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  pythonVersion: '3.11'
+
+stages:
+  - stage: Build
+    displayName: 'Build & Test'
+    jobs:
+      - job: BuildJob
+        displayName: 'Python Build'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: $(pythonVersion)
+            displayName: 'Install Python'
+
+          - script: pip install -r requirements.txt
+            displayName: 'Install Dependencies'
+
+          - script: pytest
+            displayName: 'Run Tests'
+
+          - script: python setup.py build
+            displayName: 'Build Application'

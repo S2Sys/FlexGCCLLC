@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="FlexGCC.WRT.Api/FlexGCC.WRT.Api.csproj" />
+  <Project Path="FlexGCC.WRT.Application/FlexGCC.WRT.Application.csproj" />
+  <Project Path="FlexGCC.WRT.Domain/FlexGCC.WRT.Domain.csproj" />
+  <Project Path="FlexGCC.WRT.Infrastructure/FlexGCC.WRT.Infrastructure.csproj" />
+  <Project Path="FlexGCC.WRT.Tests/FlexGCC.WRT.Tests.csproj" />
+</Solution>
+
+

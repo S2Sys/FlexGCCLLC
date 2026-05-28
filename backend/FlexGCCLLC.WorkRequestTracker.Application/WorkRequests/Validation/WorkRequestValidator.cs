@@ -40,4 +40,20 @@ public static class WorkRequestValidator
 
         return errors;
     }
+
+    public static IReadOnlyList<string> ValidateUpdate(UpdateWorkRequestRequest request)
+    {
+        var errors = new List<string>();
+        if (string.IsNullOrWhiteSpace(request.Title))
+            errors.Add("Title is required.");
+        if (string.IsNullOrWhiteSpace(request.ClientName))
+            errors.Add("Client name is required.");
+        if (string.IsNullOrWhiteSpace(request.Description))
+            errors.Add("Description is required.");
+        if (!Enum.IsDefined(typeof(WorkRequestPriority), request.Priority))
+            errors.Add("Priority must be Low, Medium, or High.");
+        if (request.DueDate == default)
+            errors.Add("Due date is required.");
+        return errors;
+    }
 }

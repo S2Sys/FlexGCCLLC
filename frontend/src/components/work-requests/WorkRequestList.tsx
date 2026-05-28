@@ -6,22 +6,42 @@ interface WorkRequestListProps {
   requests: WorkRequest[]
   onStatusChange: (id: number, status: WorkRequestStatus) => Promise<void>
   onAddNote: (id: number, noteText: string) => Promise<void>
+  onEdit: (request: WorkRequest) => void
 }
 
-export function WorkRequestList({ requests, onStatusChange, onAddNote }: WorkRequestListProps) {
+export function WorkRequestList({ requests, onStatusChange, onAddNote, onEdit }: WorkRequestListProps) {
   if (requests.length === 0) {
     return <p className="empty">No work requests match the current filters.</p>
   }
 
+  const statusOrder: WorkRequestStatus[] = ['Blocked', 'InProgress', 'New', 'Completed']
+  const grouped = statusOrder
+    .map((status) => ({
+      status,
+      items: requests.filter((request) => request.status === status),
+    }))
+    .filter((group) => group.items.length > 0)
+
   return (
     <div className="request-list">
-      {requests.map((request) => (
-        <WorkRequestRow
-          key={request.id}
-          request={request}
-          onAddNote={onAddNote}
-          onStatusChange={onStatusChange}
-        />
+      {grouped.map((group) => (
+        <section key={group.status} className={`status-group status-${group.status.toLowerCase()}`}>
+          <header className="status-group-header">
+            <strong>{group.status}</strong>
+            <span>{group.items.length}</span>
+          </header>
+          <div className="status-group-list">
+            {group.items.map((request) => (
+              <WorkRequestRow
+                key={request.id}
+                request={request}
+                onAddNote={onAddNote}
+                onStatusChange={onStatusChange}
+                onEdit={onEdit}
+              />
+            ))}
+          </div>
+        </section>
       ))}
     </div>
   )
@@ -31,9 +51,10 @@ interface WorkRequestRowProps {
   request: WorkRequest
   onStatusChange: (id: number, status: WorkRequestStatus) => Promise<void>
   onAddNote: (id: number, noteText: string) => Promise<void>
+  onEdit: (request: WorkRequest) => void
 }
 
-function WorkRequestRow({ request, onStatusChange, onAddNote }: WorkRequestRowProps) {
+function WorkRequestRow({ request, onStatusChange, onAddNote, onEdit }: WorkRequestRowProps) {
   const [note, setNote] = useState('')
 
   async function submitNote(event: FormEvent<HTMLFormElement>) {
@@ -49,9 +70,17 @@ function WorkRequestRow({ request, onStatusChange, onAddNote }: WorkRequestRowPr
           <h2>{request.title}</h2>
           <p>{request.clientName}</p>
         </div>
-        <span className={`priority priority-${request.priority.toLowerCase()}`}>
-          {request.priority}
-        </span>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span className={`priority priority-${request.priority.toLowerCase()}`}>{request.priority}</span>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ minHeight: 30, padding: '0 10px', fontSize: 12 }}
+            onClick={() => onEdit(request)}
+          >
+            Edit
+          </button>
+        </div>
       </header>
 
       <p className="description">{request.description}</p>

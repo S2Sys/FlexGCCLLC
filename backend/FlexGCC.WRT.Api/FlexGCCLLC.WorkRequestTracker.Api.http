@@ -1,0 +1,7 @@
+@FlexGCC.WRT.Api_HostAddress = http://localhost:5063
+
+GET {{FlexGCC.WRT.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+

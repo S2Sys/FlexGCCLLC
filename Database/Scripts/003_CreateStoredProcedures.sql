@@ -100,3 +100,41 @@ BEGIN
     COMMIT TRANSACTION;
 END;
 GO
+
+CREATE OR ALTER PROCEDURE dbo.usp_OutboxMessages_Save
+    @Id        UNIQUEIDENTIFIER,
+    @EventType NVARCHAR(200),
+    @Payload   NVARCHAR(MAX),
+    @CreatedAt DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.OutboxMessages (Id, EventType, Payload, CreatedAt, IsProcessed)
+    VALUES (@Id, @EventType, @Payload, @CreatedAt, 0);
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.usp_OutboxMessages_GetPending
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT Id, EventType, Payload, CreatedAt, IsProcessed
+    FROM dbo.OutboxMessages
+    WHERE IsProcessed = 0
+    ORDER BY CreatedAt;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.usp_OutboxMessages_MarkProcessed
+    @Id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.OutboxMessages
+    SET IsProcessed = 1
+    WHERE Id = @Id;
+END;
+GO

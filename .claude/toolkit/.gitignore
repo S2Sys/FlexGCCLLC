@@ -1,0 +1,50 @@
+# ── SECRETS — NEVER COMMIT ───────────────────────────────────────────────────
+mcp-servers/ado/ado.local.json
+appsettings.local.json
+appsettings.*.local.json
+appsettings.Development.json
+.env
+.env.local
+.env.*.local
+*.user
+*.pfx
+*.pem
+*.key
+secrets.json
+
+# ── CONTEXT (per-story, reset between stories) ────────────────────────────────
+# CONTEXT.md is intentionally NOT gitignored — it is committed per checkpoint
+# so all developers on the same story can read it
+
+# ── BUILD OUTPUTS ─────────────────────────────────────────────────────────────
+bin/
+obj/
+dist/
+.angular/
+node_modules/
+*.nupkg
+publish/
+artifacts/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vs/
+.vscode/
+*.suo
+*.user
+.idea/
+*.swp
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── TEST RESULTS ──────────────────────────────────────────────────────────────
+TestResults/
+coverage/
+*.trx
+*.coveragexml
+
+# ── LOGS ─────────────────────────────────────────────────────────────────────
+logs/
+*.log

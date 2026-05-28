@@ -138,10 +138,10 @@ public class WorkRequestServiceTests
     [Fact]
     public void Dapper_repository_implements_work_request_repository_contract()
     {
-        IWorkRequestRepository repository = new DapperWorkRequestRepository(
+        IWorkRequestRepository repository = new WorkRequestRepository(
             () => throw new InvalidOperationException("Connection factory is not used by this contract test."));
 
-        Assert.IsType<DapperWorkRequestRepository>(repository);
+        Assert.IsType<WorkRequestRepository>(repository);
     }
 
     private static WorkRequestDto CreateSampleRequest(WorkRequestService service) =>
