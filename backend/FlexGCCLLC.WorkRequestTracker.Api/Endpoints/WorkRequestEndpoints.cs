@@ -34,7 +34,9 @@ public static class WorkRequestEndpoints
             {
                 var result = service.Create(request);
                 return result.IsSuccess
-                    ? Results.Created($"/api/v1/work-requests/{result.Value!.Id}", result.Value)
+                    ? Results.Created(
+                        $"/api/v1/work-requests/{result.Value!.Id}",
+                        ApiResponse<WorkRequestDto>.Ok(result.Value))
                     : result.ToEndpointResult();
             })
             .WithName("CreateWorkRequestV1")

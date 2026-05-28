@@ -17,10 +17,14 @@ public class ResultExtensionsTests
         await result.ToEndpointResult().ExecuteAsync(httpContext);
 
         httpContext.Response.Body.Position = 0;
-        var response = await JsonSerializer.DeserializeAsync<string>(httpContext.Response.Body);
+        var response = await JsonSerializer.DeserializeAsync<ApiResponse<string>>(
+            httpContext.Response.Body,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         Assert.Equal(StatusCodes.Status200OK, httpContext.Response.StatusCode);
-        Assert.Equal("created", response);
+        Assert.True(response!.Success);
+        Assert.Equal("created", response.Data);
+        Assert.Null(response.Error);
     }
 
     [Theory]
@@ -36,12 +40,14 @@ public class ResultExtensionsTests
         await result.ToEndpointResult().ExecuteAsync(httpContext);
 
         httpContext.Response.Body.Position = 0;
-        var error = await JsonSerializer.DeserializeAsync<ApiErrorResponse>(
+        var response = await JsonSerializer.DeserializeAsync<ApiResponse<string>>(
             httpContext.Response.Body,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
-        Assert.Equal(code, error?.Code);
+        Assert.False(response!.Success);
+        Assert.Null(response.Data);
+        Assert.Equal(code, response.Error?.Code);
     }
 
     private static DefaultHttpContext CreateHttpContext()
