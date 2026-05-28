@@ -7,6 +7,10 @@ namespace FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
 
 public sealed class DapperOutboxRepository : IOutboxRepository
 {
+    private const string SaveProcedure = "dbo.usp_OutboxMessages_Save";
+    private const string GetPendingProcedure = "dbo.usp_OutboxMessages_GetPending";
+    private const string MarkProcessedProcedure = "dbo.usp_OutboxMessages_MarkProcessed";
+
     private readonly Func<IDbConnection> _connectionFactory;
 
     public DapperOutboxRepository(Func<IDbConnection> connectionFactory) =>
@@ -16,20 +20,25 @@ public sealed class DapperOutboxRepository : IOutboxRepository
     {
         using var conn = _connectionFactory();
         conn.Execute(
-            "INSERT INTO dbo.OutboxMessages (Id, EventType, Payload, CreatedAt, IsProcessed) VALUES (@Id, @EventType, @Payload, @CreatedAt, 0)",
-            new { message.Id, message.EventType, message.Payload, message.CreatedAt });
+            SaveProcedure,
+            new { message.Id, message.EventType, message.Payload, message.CreatedAt },
+            commandType: CommandType.StoredProcedure);
     }
 
     public IReadOnlyList<OutboxMessage> GetPending()
     {
         using var conn = _connectionFactory();
         return conn.Query<OutboxMessage>(
-            "SELECT Id, EventType, Payload, CreatedAt, IsProcessed FROM dbo.OutboxMessages WHERE IsProcessed = 0 ORDER BY CreatedAt").ToArray();
+            GetPendingProcedure,
+            commandType: CommandType.StoredProcedure).ToArray();
     }
 
     public void MarkProcessed(Guid id)
     {
         using var conn = _connectionFactory();
-        conn.Execute("UPDATE dbo.OutboxMessages SET IsProcessed = 1 WHERE Id = @Id", new { Id = id });
+        conn.Execute(
+            MarkProcessedProcedure,
+            new { Id = id },
+            commandType: CommandType.StoredProcedure);
     }
 }
