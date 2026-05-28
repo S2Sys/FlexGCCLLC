@@ -3,6 +3,7 @@ using FlexGCCLLC.WorkRequestTracker.Api.Middleware;
 using FlexGCCLLC.WorkRequestTracker.Application.Common;
 using FlexGCCLLC.WorkRequestTracker.Application.WorkRequests;
 using FlexGCCLLC.WorkRequestTracker.Infrastructure.Persistence;
+using FlexGCCLLC.WorkRequestTracker.Infrastructure.Resilience;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Text.Json.Serialization;
@@ -20,8 +21,13 @@ builder.Services.AddScoped<Func<IDbConnection>>(services =>
     var configuration = services.GetRequiredService<IConfiguration>();
     var connectionString = configuration.GetConnectionString("WorkRequestTracker")
         ?? throw new InvalidOperationException("Connection string 'WorkRequestTracker' is required.");
-
-    return () => new SqlConnection(connectionString);
+    var pipeline = SqlResiliencePipeline.Build();
+    return () =>
+    {
+        var conn = new SqlConnection(connectionString);
+        pipeline.Execute(() => conn.Open());
+        return conn;
+    };
 });
 builder.Services.AddScoped<IUnitOfWork>(sp =>
     new DapperUnitOfWork(sp.GetRequiredService<Func<IDbConnection>>()));
